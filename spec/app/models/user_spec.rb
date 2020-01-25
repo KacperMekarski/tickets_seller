@@ -17,6 +17,6 @@ RSpec.describe User, type: :model do
 
   describe 'relations' do
     it { is_expected.to have_many(:payments) }
-    # it { is_expected.to have_many(:tickets).through(:payments) }
+    it { is_expected.to have_many(:tickets).through(:payments) }
   end
 end

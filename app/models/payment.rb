@@ -7,5 +7,5 @@ class Payment < ApplicationRecord
   belongs_to :user
   belongs_to :event
 
-  # has_many :tickets
+  has_many :tickets
 end

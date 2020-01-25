@@ -6,5 +6,5 @@ class User < ApplicationRecord
   validates :full_name, presence: true
 
   has_many :payments
-  # has_many :tickets, through: :payments
+  has_many :tickets, through: :payments
 end
