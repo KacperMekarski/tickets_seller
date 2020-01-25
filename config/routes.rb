@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
 Rails.application.routes.draw do
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
+  namespace :api do
+    get '/events/:id/inform', to: 'events#inform'
+    get '/events/:id/available_tickets', to: 'events#calculate_available_tickets'
+    post '/events/:event_id/purchase_tickets', to: 'payments#call'
+  end
 end
