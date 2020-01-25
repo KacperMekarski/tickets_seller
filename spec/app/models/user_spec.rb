@@ -15,8 +15,8 @@ RSpec.describe User, type: :model do
     it { is_expected.to validate_presence_of(:full_name) }
   end
 
-  # describe 'relations' do
-  #   it { is_expected.to have_many(:payments) }
-  #   it { is_expected.to have_many(:tickets).through(:payments) }
-  # end
+  describe 'relations' do
+    it { is_expected.to have_many(:payments) }
+    # it { is_expected.to have_many(:tickets).through(:payments) }
+  end
 end

@@ -5,6 +5,6 @@ class User < ApplicationRecord
   validates_uniqueness_of :email
   validates :full_name, presence: true
 
-  # has_many :payments
+  has_many :payments
   # has_many :tickets, through: :payments
 end

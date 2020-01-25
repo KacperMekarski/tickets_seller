@@ -15,8 +15,8 @@ RSpec.describe Event, type: :model do
     it { should validate_numericality_of(:tickets_available).only_integer.is_greater_than_or_equal_to(0) }
   end
 
-  # describe 'relations' do
-  #   it { is_expected.to have_many(:payments) }
-  #   it { is_expected.to have_many(:tickets) }
-  # end
+  describe 'relations' do
+    it { is_expected.to have_many(:payments) }
+    # it { is_expected.to have_many(:tickets) }
+  end
 end
