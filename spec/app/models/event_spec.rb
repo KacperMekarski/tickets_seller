@@ -17,6 +17,6 @@ RSpec.describe Event, type: :model do
 
   describe 'relations' do
     it { is_expected.to have_many(:payments) }
-    it { is_expected.to have_many(:tickets) }
+    it { is_expected.to have_many(:purchased_tickets).through(:payments).class_name('Ticket') }
   end
 end

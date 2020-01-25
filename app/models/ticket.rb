@@ -2,5 +2,4 @@
 
 class Ticket < ApplicationRecord
   belongs_to :payment
-  belongs_to :event
 end

@@ -3,6 +3,5 @@
 FactoryBot.define do
   factory :ticket do
     payment
-    event
   end
 end
