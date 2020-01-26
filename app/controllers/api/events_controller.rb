@@ -3,17 +3,17 @@
 class Api::EventsController < ApplicationController
   rescue_from ActiveRecord::RecordNotFound, with: :render_event_not_found
 
-  before_action :find_event, only: [:show_basic_info, :show_available_tickets]
+  before_action :find_event, only: %i[show_basic_info show_available_tickets]
 
   class_attribute :json_basic_info
   class_attribute :json_available_tickets
 
   self.json_basic_info = {
-    only: [:id, :name, :location, :happens_at, :ticket_price],
+    only: %i[id name location happens_at ticket_price]
   }
 
   self.json_available_tickets = {
-    only: [:id, :tickets_available],
+    only: %i[id tickets_available]
   }
 
   def show_basic_info
@@ -34,7 +34,7 @@ class Api::EventsController < ApplicationController
     controller_name.singularize
   end
 
-  def render_event_not_found( error )
+  def render_event_not_found(error)
     render json: error, status: 404
   end
 end
