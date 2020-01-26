@@ -3,12 +3,12 @@
 class Api::EventsController < ApplicationController
   rescue_from ActiveRecord::RecordNotFound, with: :render_event_not_found
 
-  before_action :find_event, only: [:inform, :calculate_available_tickets]
+  before_action :find_event, only: [:show_basic_info, :show_available_tickets]
 
-  class_attribute :json_inform
+  class_attribute :json_basic_info
   class_attribute :json_available_tickets
 
-  self.json_inform = {
+  self.json_basic_info = {
     only: [:id, :name, :location, :happens_at, :ticket_price],
   }
 
@@ -16,11 +16,11 @@ class Api::EventsController < ApplicationController
     only: [:id, :tickets_available],
   }
 
-  def inform
-    render json: { model_name => @event.as_json(json_inform) }
+  def show_basic_info
+    render json: { model_name => @event.as_json(json_basic_info) }
   end
 
-  def calculate_available_tickets
+  def show_available_tickets
     render json: { model_name => @event.as_json(json_available_tickets) }
   end
 

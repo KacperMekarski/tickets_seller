@@ -4,8 +4,8 @@ require "rails_helper"
 require 'json'
 
 RSpec.describe Api::EventsController, type: :controller do
-  describe 'GET #inform' do
-    before { get(:inform, params: { id: id }) }
+  describe 'GET #show_basic_info' do
+    before { get(:show_basic_info, params: { id: id }) }
     let!(:event) { create(:event) }
 
     context 'when event is found' do
@@ -29,8 +29,8 @@ RSpec.describe Api::EventsController, type: :controller do
     end
   end
 
-  describe 'GET #calculate_available_tickets' do
-    before { get(:calculate_available_tickets, params: { id: id }) }
+  describe 'GET #show_available_tickets' do
+    before { get(:show_available_tickets, params: { id: id }) }
     let!(:event) { create(:event) }
 
     context 'when event is found' do
