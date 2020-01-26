@@ -10,12 +10,10 @@ class Api::EventsController < ApplicationController
 
   self.json_inform = {
     only: [:id, :name, :location, :happens_at, :ticket_price],
-    methods: [:errors]
   }
 
   self.json_available_tickets = {
     only: [:id, :tickets_available],
-    methods: [:errors]
   }
 
   def inform
