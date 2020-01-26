@@ -6,6 +6,7 @@ FactoryBot.define do
     location { Faker::Address.full_address }
     happens_at { Faker::Time.forward(days: 365, format: :short) }
     ticket_price { Faker::Number.within(range: 1..100_000) }
-    tickets_available { Faker::Number.within(range: 1..100_000) }
+    tickets_amount { Faker::Number.within(range: 1..100_000) }
+    tickets_available { tickets_amount }
   end
 end

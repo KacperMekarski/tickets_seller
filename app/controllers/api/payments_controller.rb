@@ -12,17 +12,16 @@ class Api::PaymentsController < ApplicationController
   self.json_payment = {
     only: %i[id name location happens_at ticket_price],
     methods: [:errors],
-    include: :tickets
+    include: [:tickets]
   }
 
   def create
     @payment = model_name.new(permitted_params)
-    # 1. Tutaj w modelu lecą walidacje, czy można dokonać płatności.
     @payment.save!
-    # 2. Tutaj ma zrobić charge z modułu, jak mu przekazać błędy z modelu?
-    # 3. Tutaj ma wygenerować tyle biletów ile kupiono
-    # 4. Tutaj ma zaktualizować ile zostało dostępnych biletów.
-    render json: { model_name => @resource.as_json(json_payment) }
+    # 1. Tutaj ma zrobić charge z modułu, jak mu przekazać błędy z modelu?
+    # 2. Tutaj ma wygenerować tyle biletów ile kupiono
+    update_event_tickets_available
+    render json: { model_name => @payment.as_json(json_payment) }
   end
 
   private
@@ -36,6 +35,10 @@ class Api::PaymentsController < ApplicationController
   end
 
   def render_record_invalid
-    render json: { model_name => @resource.as_json(json_payment) }, status: 422
+    render json: { model_name => @payment.as_json(json_payment) }, status: 422
+  end
+
+  def update_event_tickets_available
+    @payment.event.update_available_tickets
   end
 end
