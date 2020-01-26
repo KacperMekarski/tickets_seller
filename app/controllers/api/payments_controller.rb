@@ -3,7 +3,7 @@
 class Api::PaymentsController < ApplicationController
   include Adapters::Payment::Gateway
 
-  rescue_from ActiveRecord::RecordInvalid, :with => :render_record_invalid
+  rescue_from ActiveRecord::RecordInvalid, with: :render_record_invalid
   # rescue_from CardError, with => :
   # rescue_from PaymentError, with => :
 
@@ -32,11 +32,10 @@ class Api::PaymentsController < ApplicationController
   end
 
   def permitted_params
-    params.require( model_name ).permit( :user_id, :event_id, :paid_amount )
+    params.require(model_name).permit(:user_id, :event_id, :paid_amount)
   end
 
   def render_record_invalid
     render json: { model_name => @resource.as_json(json_payment) }, status: 422
   end
-
 end

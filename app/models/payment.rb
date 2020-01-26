@@ -4,8 +4,11 @@ class Payment < ApplicationRecord
   validates :paid_amount, presence: true
   validates :paid_amount, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
 
-  validate :event_datetime, on: :create
+  validate :payment_datetime, on: :create
   validate :change_is_left, on: :create
+  validate :not_enough_money, on: :create
+  validate :lack_of_tickets, on: :create
+  validate :not_enough_tickets, on: :create
 
   belongs_to :user
   belongs_to :event
@@ -14,25 +17,31 @@ class Payment < ApplicationRecord
 
   private
 
-  def event_datetime
-    errors.add(:base, "can not buy a ticket after the event") if DateTime.now > event.happens_at
+  def payment_datetime
+    if DateTime.now > event.happens_at
+      errors.add(:base, 'can not buy a ticket after the event')
+    end
   end
 
   def change_is_left
-    errors.add(:base, "can not buy an equal number of tickets, change is left") unless paid_amount % event.ticket_price == 0
+    unless paid_amount % event.ticket_price == 0
+      errors.add(:base, 'can not buy an equal number of tickets, change is left')
+    end
   end
 
-  # Dodaj walidacje:
-  # user kupił 1 bilet (bilety są dostępne, stać go i jest przed koncertem),
-  # user kupił wiele biletów, (bilety są dostępne, stać go i jest przed koncertem),
+  def not_enough_money
+    if paid_amount < event.ticket_price
+      errors.add(:base, 'not enough money to buy a ticket')
+    end
+  end
 
-  # jak user chce kupić 3 bilety a jest 1,
-  # jak user chce kupić 3 bilety a jest 0,
+  def lack_of_tickets
+    errors.add(:base, 'lack of any tickets') if event.tickets_available == 0
+  end
 
-  # jak user nie ma żadnych pieniędzy,
-  # jak user nie ma wystarczająco dużo pieniędzy,
-
-  # jak nie wyslal wielokrotnosci ceny biletu,
-
-  # wysylana kwota zaczyna się od zera?
+  def not_enough_tickets
+    if paid_amount / event.ticket_price > event.tickets_available
+      errors.add(:base, 'not enough tickets left')
+    end
+  end
 end
