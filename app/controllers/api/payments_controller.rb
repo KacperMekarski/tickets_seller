@@ -6,7 +6,7 @@ class Api::PaymentsController < ApplicationController
   # rescue_from ActiveRecord::RecordInvalid
   # rescue_from CardError, with => :render_record_invalid
   # rescue_from PaymentError, with => :render_revord_invalid
-  # rescue StandardError z metody gdzie zmniejsza ilosc dostepnych biletow
+  # rescue StandardError z metody gdzie zmniejsza ilosc dostepnych biletow i gdzie tworzy bilety
   class_attribute :json_payment
 
   self.json_payment = {
@@ -48,6 +48,7 @@ class Api::PaymentsController < ApplicationController
 
   def create_tickets(payment_params, payment_id)
     tickets_number = calculate_number_of_tickets(payment_params)
+    check_if_enough_tickets_left(tickets_number, payment_params[:event_id])
     ticket_payment_id = { payment_id: payment_id }
     tickets = get_all_together(tickets_number, ticket_payment_id)
     Ticket.create(tickets)
@@ -56,12 +57,17 @@ class Api::PaymentsController < ApplicationController
   def calculate_number_of_tickets(payment_params)
     paid_amount = payment_params[:paid_amount]
     ticket_price = Event.find(payment_params[:event_id]).ticket_price
-    paid_amount / ticket_price
+    paid_amount.to_i / ticket_price.to_i
   end
 
   def get_all_together(tickets_number, ticket_payment_id)
     tickets = []
     tickets_number.times { tickets << ticket_payment_id }
     tickets
+  end
+
+  def check_if_enough_tickets_left(tickets_number, event_id)
+    tickets_available = Event.find(event_id).tickets_available
+    raise StandardError, 'not enough tickets left' if tickets_number > tickets_available
   end
 end

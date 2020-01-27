@@ -62,13 +62,25 @@ RSpec.describe Api::PaymentsController, type: :controller do
     let(:user) { create(:user) }
     let(:event) { create(:event, ticket_price: 100, tickets_available: 100, tickets_amount: 100) }
     let(:payment) { create(:payment) }
-    let(:paid_amount) { 1000 }
     let(:payment_params) { { user_id: user.id, event_id: event.id, paid_amount: paid_amount } }
 
-    it 'should create demanded amount of tickets' do
-      @payment = Api::PaymentsController.new
-      @payment.send(:create_tickets, payment_params, payment.id)
-      expect(Ticket.count).to eq 10
+    context 'when number of purchased tickets is smaller than tickets amount at event' do
+      let(:paid_amount) { 1000 }
+
+      it 'should create demanded amount of tickets' do
+        @payment = Api::PaymentsController.new
+        @payment.send(:create_tickets, payment_params, payment.id)
+        expect(Ticket.count).to eq 10
+      end
+    end
+
+    context 'when number of purchased tickets is greater than tickets amount at event' do
+      let(:paid_amount) { 11000 }
+
+      it 'should raise an error' do
+        @payment = Api::PaymentsController.new
+        expect { @payment.send(:create_tickets, payment_params, payment.id) }.to raise_error(StandardError, 'not enough tickets left')
+      end
     end
   end
 end
