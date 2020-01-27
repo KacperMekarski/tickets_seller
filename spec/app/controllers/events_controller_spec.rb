@@ -58,6 +58,3 @@ RSpec.describe Api::EventsController, type: :controller do
     it { should rescue_from(ActiveRecord::RecordNotFound).with(:render_event_not_found) }
   end
 end
-
-# it { is_expected.to respond_with_content_type(:json) }
-# post :create, { :widget => { :name => "Any Name" }, :format => :json }

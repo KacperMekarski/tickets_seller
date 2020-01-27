@@ -50,7 +50,7 @@ RSpec.describe Event, type: :model do
       end
     end
   end
-
+  # TODO
   # describe 'callbacks' do
   #   describe  'set_available_tickets' do
   #     context 'when created' do

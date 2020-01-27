@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 class Api::PaymentsController < ApplicationController
-  include Adapters::Payment::Gateway
+  # include Adapters::Payment::Gateway
 
-  rescue_from ActiveRecord::RecordInvalid
+  # rescue_from ActiveRecord::RecordInvalid
   # , with: :render_record_invalid
   # rescue_from CardError, with => :render_record_invalid
   # rescue_from PaymentError, with => :render_revord_invalid
@@ -18,10 +18,10 @@ class Api::PaymentsController < ApplicationController
   }
 
   def create
-    @payment = model_name.new(permitted_params)
+    @payment = Payment.new(payment_params)
     # 1. Tutaj ma zrobić charge z modułu, jak mu przekazać błędy z modelu?
-    token_errors = zrób tu metodę która ma w sobie @payment.errors i zwraca tokeny w zależności od rodzaju błędu.
-    Adapter::Payments::Gateaway.charge(@payment.paid_amount, token_errors, "EUR")
+    # token_errors = zrób tu metodę która ma w sobie @payment.errors i zwraca tokeny w zależności od rodzaju błędu
+    # .Adapter::Payments::Gateaway.charge(@payment.paid_amount, token_errors, 'EUR')
     # Jak wsadzic do responsa CardError lub PaymentError do struktury powyżej?
     @payment.save!
     # 2. Tutaj ma wygenerować tyle biletów ile kupiono
@@ -35,8 +35,8 @@ class Api::PaymentsController < ApplicationController
     controller_name.singularize
   end
 
-  def permitted_params
-    params.require(model_name).permit(:user_id, :event_id, :paid_amount)
+  def payment_params
+    params.require(:payment).permit(:user_id, :event_id, :paid_amount)
   end
 
   def render_record_invalid
