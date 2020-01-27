@@ -38,7 +38,7 @@ class Api::PaymentsController < ApplicationController
     params.require(:payment).permit(:user_id, :event_id, :paid_amount)
   end
 
-  def render_record_invalid( general_error )
+  def render_record_invalid(general_error)
     render json: { model_name => @payment.as_json(json_payment), reject_reason: general_error.inspect }, status: 422
   end
 
