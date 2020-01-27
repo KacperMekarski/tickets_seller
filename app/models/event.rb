@@ -4,7 +4,7 @@ class Event < ApplicationRecord
   validates :name, :location, :happens_at, :ticket_price, :tickets_amount, presence: true
   validates :ticket_price, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
   validates :tickets_available, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :tickets_amount, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_blank: true
+  validates :tickets_amount, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
 
   has_many :payments
   has_many :purchased_tickets, through: :payments, source: :tickets
