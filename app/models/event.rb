@@ -7,13 +7,14 @@ class Event < ApplicationRecord
   validates :tickets_amount, numericality: { only_integer: true, greater_than_or_equal_to: 1 }, allow_blank: true
 
   has_many :payments
-  has_many :purchased_tickets, through: :payments, class_name: 'Ticket'
+  has_many :purchased_tickets, through: :payments, source: :tickets
 
   # before_create :set_available_tickets
 
   def update_available_tickets
     self.purchased_tickets.any? ? new_available_tickets_amount = self.tickets_amount - self.purchased_tickets.count : new_available_tickets_amount = self.tickets_amount
-    self.update_column({ tickets_available: new_available_tickets_amount })
+    raise StandardError, 'can not buy more tickets than available' if new_available_tickets_amount < 0
+    self.update_columns( tickets_available: new_available_tickets_amount )
   end
 
   # def set_available_tickets

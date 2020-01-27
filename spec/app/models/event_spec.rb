@@ -18,7 +18,37 @@ RSpec.describe Event, type: :model do
 
   describe 'relations' do
     it { is_expected.to have_many(:payments) }
-    it { is_expected.to have_many(:purchased_tickets).through(:payments).class_name('Ticket') }
+    it { is_expected.to have_many(:purchased_tickets).through(:payments).source(:tickets) }
+  end
+
+  describe 'instance methods' do
+    describe 'set_available_tickets' do
+      subject(:event) { create(:event, tickets_amount: 100, tickets_available: 100) }
+
+      context 'when no ticket was purchased' do
+        it 'should set tickets_available to tickets_amount' do
+          event.update_available_tickets
+          expect(subject.tickets_available).to eq event.tickets_amount
+        end
+      end
+
+      context 'when some tickets were purchased' do
+        let!(:ticket) { create_list(:ticket, 15, payment: payment) }
+        let!(:payment) { create(:payment, event: event) }
+
+        it 'should reduce number of tickets_available by purchased tickets' do
+          event.update_available_tickets
+          expect(event.tickets_available).to eq 85
+        end
+      end
+
+      context 'when user purchased more tickets than available' do
+        let!(:ticket) { create_list(:ticket, 125, payment: payment) }
+        let!(:payment) { create(:payment, event: event) }
+
+        it { expect { event.update_available_tickets }.to raise_error(StandardError, 'can not buy more tickets than available') }
+      end
+    end
   end
 
   # describe 'callbacks' do
