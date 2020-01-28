@@ -14,8 +14,10 @@ RSpec.describe Payment, type: :model do
   describe 'validations' do
     subject(:payment) { create(:payment) }
 
+    it { is_expected.to validate_presence_of(:currency) }
     it { is_expected.to validate_presence_of(:paid_amount) }
     it { should validate_numericality_of(:paid_amount).only_integer.is_greater_than_or_equal_to(1) }
+
     # TODO
     # describe 'payment_datetime' do
     #   subject(:payment) { build(:payment, event: event) }

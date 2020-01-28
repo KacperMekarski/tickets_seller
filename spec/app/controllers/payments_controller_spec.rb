@@ -6,12 +6,13 @@ require 'json'
 RSpec.describe Api::PaymentsController, type: :controller do
   describe 'POST #create' do
     before { post :create, params: { payment: payment_params, event_id: event.id }, format: :json }
-    let!(:event) { create(:event, ticket_price: 100, tickets_available: 100) }
+    let!(:event) { create(:event, ticket_price: 10, tickets_available: 1000) }
     let!(:user) { create(:user) }
     let(:payment_params) { {
       user_id: user.id,
       event_id: event.id,
-      paid_amount: 10000
+      paid_amount: 40,
+      currency: "EUR"
       }
     }
 
@@ -25,6 +26,14 @@ RSpec.describe Api::PaymentsController, type: :controller do
       it { expect(response_data['event_id']).to eq(payment_params[:event_id]) }
       it { expect(response_data['user_id']).to eq(payment_params[:user_id]) }
       it { expect(response_data['paid_amount']).to eq(payment_params[:paid_amount]) }
+      it { expect(response_data['currency']).to eq(payment_params[:currency]) }
+      it { expect(response_data["tickets"].count).to eq 4 }
+      it "should increase number of purchased tickets by 4" do
+        expect { post :create, params: { payment: payment_params, event_id: event.id }, format: :json }.to change { Event.find(event.id).purchased_tickets.count }.from(4).to(8)
+      end
+      it "should decrease number of available tickets by 4" do
+        expect { post :create, params: { payment: payment_params, event_id: event.id }, format: :json }.to change { Event.find(event.id).tickets_available }.from(Event.find(event.id).tickets_available).to(Event.find(event.id).tickets_available - 4)
+      end
       it { expect(response.status).to eq(200) }
     end
 
@@ -46,10 +55,11 @@ RSpec.describe Api::PaymentsController, type: :controller do
         payment: {
           user_id: user.id,
           event_id: event.id,
-          paid_amount: event.ticket_price
+          paid_amount: event.ticket_price,
+          currency: "EUR"
         }
       }
-      should permit(:user_id, :event_id, :paid_amount)
+      should permit(:user_id, :event_id, :paid_amount, :currency)
         .for(:create, params: params, verb: :post)
         .on(:payment)
     end

@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 class Api::PaymentsController < ApplicationController
-  # include Adapters::Payment::Gateway
-
   # rescue_from ActiveRecord::RecordInvalid
   # rescue_from CardError, with => :render_record_invalid
   # rescue_from PaymentError, with => :render_revord_invalid
@@ -10,32 +8,44 @@ class Api::PaymentsController < ApplicationController
   class_attribute :json_payment
 
   self.json_payment = {
-    only: %i[id event_id user_id paid_amount],
+    only: %i[id event_id user_id paid_amount currency],
     methods: [:errors],
-    include: [:tickets]
+    include: {
+      tickets: {
+        only: %i[id payment_id created_at]
+      }
+    }
   }
 
   def create
-    @payment = Payment.new(payment_params)
-    if @payment.save!
-      @payment.save!
-      create_tickets(payment_params, @payment.id)
-      update_event_tickets_available
-      render json: { model_name => @payment.as_json(json_payment) }
-    else
-      token_errors = @payment.errors i zwraca tokeny w zależności od rodzaju błędu
-      # Adapter::Payments::Gateaway.charge(@payment.paid_amount, token_errors, 'EUR')
-    end
+    token = check_if_valid(payment_params)
+    payment = Api::Adapters::Payment::Gateway.charge(amount: payment_params[:paid_amount], token: token)
+    @new_payment = Payment.create(paid_amount: payment.amount, currency: payment.currency, event_id: payment_params[:event_id], user_id: payment_params[:user_id])
+    create_tickets(payment_params, @new_payment.id)
+    update_event_tickets_available
+    render json: { model_name => @new_payment.as_json(json_payment) }
   end
 
   private
+
+  def check_if_valid(payment_params)
+    @payment = Payment.new(payment_params)
+    @payment.valid?
+    if @payment.valid?
+      return :ok
+    elsif @payment.errors.messages.values.flatten.include?('not enough money to buy a ticket')
+      return :card_error
+    else
+      return :payment_error
+    end
+  end
 
   def model_name
     controller_name.singularize
   end
 
   def payment_params
-    params.require(:payment).permit(:user_id, :event_id, :paid_amount)
+    params.require(:payment).permit(:user_id, :event_id, :paid_amount, :currency)
   end
 
   def render_record_invalid(general_error)
@@ -43,7 +53,7 @@ class Api::PaymentsController < ApplicationController
   end
 
   def update_event_tickets_available
-    @payment.event.update_available_tickets
+    @new_payment.event.update_available_tickets
   end
 
   def create_tickets(payment_params, payment_id)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Payment < ApplicationRecord
-  validates :paid_amount, presence: true
+  validates :paid_amount, :currency, presence: true
   validates :paid_amount, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
 
   # validate :payment_datetime, on: :create
@@ -25,15 +25,11 @@ class Payment < ApplicationRecord
   # end
 
   def change_is_left
-    unless paid_amount % event.ticket_price == 0
-      errors.add(:base, 'change is left')
-    end
+    errors.add(:base, 'change is left') unless paid_amount % event.ticket_price == 0
   end
 
   def not_enough_money
-    if paid_amount < event.ticket_price
-      errors.add(:base, 'not enough money to buy a ticket')
-    end
+    errors.add(:base, 'not enough money to buy a ticket') if paid_amount < event.ticket_price
   end
 
   def lack_of_tickets
@@ -41,8 +37,6 @@ class Payment < ApplicationRecord
   end
 
   def not_enough_tickets
-    if paid_amount / event.ticket_price > event.tickets_available
-      errors.add(:base, 'not enough tickets left')
-    end
+    errors.add(:base, 'not enough tickets left') if paid_amount / event.ticket_price > event.tickets_available
   end
 end
