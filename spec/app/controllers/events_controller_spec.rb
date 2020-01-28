@@ -50,6 +50,34 @@ RSpec.describe Api::EventsController, type: :controller do
     end
   end
 
+  describe 'GET #index' do
+    subject(:get_index) { get(:index) }
+    let(:response_data) { JSON.parse(response.body)['events'] }
+
+    context 'when events exist' do
+      let!(:event) { create_list(:event, 10) }
+      it 'returns events' do
+        get_index
+        expect(response_data.count).to eq 10
+      end
+      it 'has status 200' do
+        get_index
+        expect(response.status).to eq(200)
+      end
+    end
+
+    context 'when there is no event' do
+      it 'returns events' do
+        get_index
+        expect(response_data.count).to eq 0
+      end
+      it 'has status 200' do
+        get_index
+        expect(response.status).to eq(200)
+      end
+    end
+  end
+
   describe 'callbacks' do
     it { should use_before_action(:find_event) }
   end
