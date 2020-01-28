@@ -10,7 +10,7 @@ class Api::PaymentsController < ApplicationController
   class_attribute :json_payment
 
   self.json_payment = {
-    only: %i[id name location happens_at ticket_price],
+    only: %i[id event_id user_id paid_amount],
     methods: [:errors],
     include: [:tickets]
   }

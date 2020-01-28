@@ -4,34 +4,37 @@ require 'rails_helper'
 require 'json'
 
 RSpec.describe Api::PaymentsController, type: :controller do
-  # describe 'GET #show_basic_info' do
-  #   before { post :create, params: { payment: { params }, :format => :json } }
-  #   let!(:event) { create(:event) }
-  #
-  #   it "responds to json" do
-  #     expect(response.content_type).to eq "application/json"
-  #   end
-  #
-  #   context 'when payment is created' do
-  #     let(:id) { event.id }
-  #     let(:response_data) { JSON.parse(response.body)['event'] }
-  #
-  #     it { expect(response_data['id']).to eq(event.id) }
-  #     it { expect(response_data['name']).to eq(event.name) }
-  #     it { expect(response_data['location']).to eq(event.location) }
-  #     it { expect(DateTime.parse(response_data['happens_at'])).to eq(event.happens_at) }
-  #     it { expect(response_data['ticket_price']).to eq(event.ticket_price) }
-  #     it { expect(response.status).to eq(200) }
-  #   end
-  #
-  #   context 'when payment is rejected' do
-  #     let(:id) { 12_345 }
-  #     let(:response_data) { JSON.parse(response.body) }
-  #
-  #     it { expect(response_data).to eq("Couldn't find Event with 'id'=#{id}") }
-  #     it { expect(response.status).to eq(404) }
-  #   end
-  # end
+  describe 'POST #create' do
+    before { post :create, params: { payment: payment_params, event_id: event.id }, format: :json }
+    let!(:event) { create(:event, ticket_price: 100, tickets_available: 100) }
+    let!(:user) { create(:user) }
+    let(:payment_params) { {
+      user_id: user.id,
+      event_id: event.id,
+      paid_amount: 10000
+      }
+    }
+
+    it "responds to json" do
+      expect(response.content_type).to eq "application/json; charset=utf-8"
+    end
+
+    context 'when payment is created' do
+      let(:response_data) { JSON.parse(response.body)['payment'] }
+
+      it { expect(response_data['event_id']).to eq(payment_params[:event_id]) }
+      it { expect(response_data['user_id']).to eq(payment_params[:user_id]) }
+      it { expect(response_data['paid_amount']).to eq(payment_params[:paid_amount]) }
+      it { expect(response.status).to eq(200) }
+    end
+
+    context 'when payment is rejected' do
+      # let(:response_data) { JSON.parse(response.body) }
+      #
+      # it { expect(response_data).to eq("Couldn't find Event with 'id'=#{id}") }
+      # it { expect(response.status).to eq(404) }
+    end
+  end
 
   describe 'permitted params' do
     let!(:user) { create(:user) }
