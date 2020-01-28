@@ -2,8 +2,8 @@
 
 class Api::PaymentsController < ApplicationController
   # rescue_from ActiveRecord::RecordInvalid
-  # rescue_from CardError, with => :render_record_invalid
-  # rescue_from PaymentError, with => :render_revord_invalid
+  rescue_from Api::Adapters::Payment::Gateway::CardError, with: :render_record_invalid
+  rescue_from Api::Adapters::Payment::Gateway::PaymentError, with: :render_record_invalid
   # rescue StandardError z metody gdzie zmniejsza ilosc dostepnych biletow i gdzie tworzy bilety
   class_attribute :json_payment
 
@@ -18,8 +18,10 @@ class Api::PaymentsController < ApplicationController
   }
 
   def create
-    token = check_if_valid(payment_params)
-    payment = Api::Adapters::Payment::Gateway.charge(amount: payment_params[:paid_amount], token: token)
+    @payment = Payment.new(payment_params)
+    token = check_if_valid(@payment)
+    Api::Adapters::Payment::Gateway.check_for_errors(token: token)
+    payment = Api::Adapters::Payment::Gateway.charge(amount: payment_params[:paid_amount], currency: payment_params[:currency])
     @new_payment = Payment.create(paid_amount: payment.amount, currency: payment.currency, event_id: payment_params[:event_id], user_id: payment_params[:user_id])
     create_tickets(payment_params, @new_payment.id)
     update_event_tickets_available
@@ -28,12 +30,12 @@ class Api::PaymentsController < ApplicationController
 
   private
 
-  def check_if_valid(payment_params)
-    @payment = Payment.new(payment_params)
-    @payment.valid?
-    if @payment.valid?
+  def check_if_valid(payment)
+    payment.valid?
+    # rescue  => e
+    if payment.valid?
       return :ok
-    elsif @payment.errors.messages.values.flatten.include?('not enough money to buy a ticket')
+    elsif payment.errors.messages.values.flatten.include?('not enough money to buy a ticket')
       return :card_error
     else
       return :payment_error
@@ -48,8 +50,8 @@ class Api::PaymentsController < ApplicationController
     params.require(:payment).permit(:user_id, :event_id, :paid_amount, :currency)
   end
 
-  def render_record_invalid(general_error)
-    render json: { model_name => @payment.as_json(json_payment), reject_reason: general_error.inspect }, status: 422
+  def render_record_invalid(reject_reason)
+    render json: { model_name => @payment.as_json(json_payment), reject_reason: reject_reason.message }, status: 422
   end
 
   def update_event_tickets_available

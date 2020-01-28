@@ -10,15 +10,17 @@ module Api
         Result = Struct.new(:amount, :currency)
 
         class << self
-          def charge(amount:, token:, currency: 'EUR')
+          def check_for_errors(token:)
             case token.to_sym
             when :card_error
               raise CardError, 'Your card has been declined.'
             when :payment_error
               raise PaymentError, 'Something went wrong with your transaction.'
-            else
-              result = Result.new(amount, currency)
             end
+          end
+
+          def charge(amount:, currency: 'EUR')
+            Result.new(amount, currency)
           end
         end
       end

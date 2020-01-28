@@ -37,6 +37,6 @@ class Payment < ApplicationRecord
   end
 
   def not_enough_tickets
-    errors.add(:base, 'not enough tickets left') if paid_amount / event.ticket_price > event.tickets_available
+    errors.add(:base, 'not enough tickets left') if paid_amount / event.ticket_price > event.tickets_available && paid_amount % event.ticket_price == 0
   end
 end
