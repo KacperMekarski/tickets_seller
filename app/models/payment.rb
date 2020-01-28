@@ -4,7 +4,7 @@ class Payment < ApplicationRecord
   validates :paid_amount, :currency, presence: true
   validates :paid_amount, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
 
-  # validate :payment_datetime, on: :create
+  validate :payment_datetime, on: :create
   validate :change_is_left, on: :create
   validate :not_enough_money, on: :create
   validate :lack_of_tickets, on: :create
@@ -17,12 +17,11 @@ class Payment < ApplicationRecord
 
   private
 
-  # TODO
-  # def payment_datetime
-  #   if DateTime.now > self.event.happens_at
-  #     errors.add(:base, 'can not buy a ticket after the event')
-  #   end
-  # end
+  def payment_datetime
+    if DateTime.now > self.event.happens_at
+      errors.add(:base, 'can not buy a ticket after the event')
+    end
+  end
 
   def change_is_left
     errors.add(:base, 'change is left') unless paid_amount % event.ticket_price == 0
