@@ -6,7 +6,7 @@ require 'json'
 RSpec.describe Api::PaymentsController, type: :controller do
   describe 'POST #create' do
     subject(:post_create) { post :create, params: { payment: payment_params, event_id: event.id }, format: :json }
-    let!(:event) { create(:event, ticket_price: 10, tickets_available: tickets_available) }
+    let!(:event) { create(:event, ticket_price: 10, tickets_available: tickets_available, tickets_amount: tickets_amount) }
     let!(:user) { create(:user) }
     let(:response_data) { JSON.parse(response.body)['payment'] }
 
@@ -26,9 +26,8 @@ RSpec.describe Api::PaymentsController, type: :controller do
       end
 
       it 'should not change amount of tickets' do
-        post_create
-        expect { post :create, params: { payment: payment_params, event_id: event.id }, format: :json }.not_to change { Event.find(event.id).purchased_tickets.count }
-        expect { post :create, params: { payment: payment_params, event_id: event.id }, format: :json }.not_to change { Event.find(event.id).tickets_available }
+        expect { post_create }.not_to change { event.reload.purchased_tickets.count }
+        expect { post_create }.not_to change { event.reload.tickets_available }
       end
     end
 
@@ -37,10 +36,12 @@ RSpec.describe Api::PaymentsController, type: :controller do
         user_id: user.id,
         event_id: event.id,
         paid_amount: 40,
+        tickets_ordered_amount: 4,
         currency: "EUR"
         }
       }
       let(:tickets_available) { 1000 }
+      let(:tickets_amount) { 1000 }
 
       it 'contains valid response data' do
         post_create
@@ -53,13 +54,13 @@ RSpec.describe Api::PaymentsController, type: :controller do
       end
 
       it "should increase number of purchased tickets by 4" do
-        post_create
-        expect { post :create, params: { payment: payment_params, event_id: event.id }, format: :json }.to change { Event.find(event.id).purchased_tickets.count }.from(4).to(8)
+        expect { post_create }.to change { event.reload.purchased_tickets.count }.by(4)
       end
+
       it "should decrease number of available tickets by 4" do
-        post_create
-        expect { post :create, params: { payment: payment_params, event_id: event.id }, format: :json }.to change { Event.find(event.id).tickets_available }.from(Event.find(event.id).tickets_available).to(Event.find(event.id).tickets_available - 4)
+        expect { post_create }.to change { event.reload.tickets_available }.by(-4)
       end
+
       it 'should have ok status' do
         post_create
         expect(response.status).to eq(200)
@@ -72,14 +73,18 @@ RSpec.describe Api::PaymentsController, type: :controller do
         user_id: user.id,
         event_id: event.id,
         paid_amount: paid_amount,
+        tickets_ordered_amount: tickets_ordered_amount,
         currency: "EUR"
         }
       }
       let(:tickets_available) { 1000 }
+      let(:tickets_amount) { 1000 }
 
       context 'because change is left' do
         let(:paid_amount) { 12345 }
+        let(:tickets_ordered_amount) { 1234 }
         let(:tickets_available) { 1000 }
+        let(:tickets_amount) { 1000 }
 
         it_should_behave_like "payment response renderable"
 
@@ -92,7 +97,9 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
       context 'because not enough money was paid' do
         let(:paid_amount) { 7 }
+        let(:tickets_ordered_amount) { 1 }
         let(:tickets_available) { 1000 }
+        let(:tickets_amount) { 1000 }
 
         it_should_behave_like "payment response renderable"
 
@@ -105,7 +112,9 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
       context 'because no tickets left' do
         let(:paid_amount) { 100 }
+        let(:tickets_ordered_amount) { 10 }
         let(:tickets_available) { 0 }
+        let(:tickets_amount) { 100 }
 
         it_should_behave_like "payment response renderable"
 
@@ -118,7 +127,9 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
       context 'because there is not enough tickets left' do
         let(:paid_amount) { 100 }
+        let(:tickets_ordered_amount) { 10 }
         let(:tickets_available) { 5 }
+        let(:tickets_amount) { 100 }
 
         it_should_behave_like "payment response renderable"
 
@@ -142,10 +153,11 @@ RSpec.describe Api::PaymentsController, type: :controller do
           user_id: user.id,
           event_id: event.id,
           paid_amount: event.ticket_price,
+          tickets_ordered_amount: 4,
           currency: "EUR"
         }
       }
-      should permit(:user_id, :event_id, :paid_amount, :currency)
+      should permit(:user_id, :event_id, :paid_amount, :tickets_ordered_amount, :currency)
         .for(:create, params: params, verb: :post)
         .on(:payment)
     end

@@ -8,7 +8,7 @@ class Api::PaymentsController < ApplicationController
   class_attribute :json_payment
 
   self.json_payment = {
-    only: %i[id event_id user_id paid_amount currency],
+    only: %i[id event_id user_id paid_amount tickets_ordered_amount currency],
     methods: [:errors],
     include: {
       tickets: {
@@ -22,7 +22,7 @@ class Api::PaymentsController < ApplicationController
     token = check_if_valid(@payment)
     Api::Adapters::Payment::Gateway.check_for_errors(token: token)
     payment = Api::Adapters::Payment::Gateway.charge(amount: payment_params[:paid_amount], currency: payment_params[:currency])
-    @new_payment = Payment.create(paid_amount: payment.amount, currency: payment.currency, event_id: payment_params[:event_id], user_id: payment_params[:user_id])
+    @new_payment = Payment.create!(paid_amount: payment.amount, currency: payment.currency, event_id: payment_params[:event_id], user_id: payment_params[:user_id], tickets_ordered_amount: payment_params[:tickets_ordered_amount])
     create_tickets(payment_params, @new_payment.id)
     update_event_tickets_available
     render json: { model_name => @new_payment.as_json(json_payment) }
@@ -47,7 +47,7 @@ class Api::PaymentsController < ApplicationController
   end
 
   def payment_params
-    params.require(:payment).permit(:user_id, :event_id, :paid_amount, :currency)
+    params.require(:payment).permit(:user_id, :event_id, :paid_amount, :currency, :tickets_ordered_amount)
   end
 
   def render_record_invalid(reject_reason)
@@ -55,21 +55,15 @@ class Api::PaymentsController < ApplicationController
   end
 
   def update_event_tickets_available
-    @new_payment.event.update_available_tickets
+    @new_payment.event.update_available_tickets!
   end
 
   def create_tickets(payment_params, payment_id)
-    tickets_number = calculate_number_of_tickets(payment_params)
+    tickets_number = payment_params[:tickets_ordered_amount].to_i
     check_if_enough_tickets_left(tickets_number, payment_params[:event_id])
     ticket_payment_id = { payment_id: payment_id }
     tickets = get_all_together(tickets_number, ticket_payment_id)
-    Ticket.create(tickets)
-  end
-
-  def calculate_number_of_tickets(payment_params)
-    paid_amount = payment_params[:paid_amount]
-    ticket_price = Event.find(payment_params[:event_id]).ticket_price
-    paid_amount.to_i / ticket_price.to_i
+    tickets.each { |t| Ticket.create!(t) }
   end
 
   def get_all_together(tickets_number, ticket_payment_id)

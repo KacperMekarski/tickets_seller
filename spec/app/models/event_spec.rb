@@ -27,7 +27,7 @@ RSpec.describe Event, type: :model do
 
       context 'when no ticket was purchased' do
         it 'should set tickets_available to tickets_amount' do
-          event.update_available_tickets
+          event.update_available_tickets!
           expect(subject.tickets_available).to eq event.tickets_amount
         end
       end
@@ -37,7 +37,7 @@ RSpec.describe Event, type: :model do
         let!(:payment) { create(:payment, event: event) }
 
         it 'should reduce number of tickets_available by purchased tickets' do
-          event.update_available_tickets
+          event.update_available_tickets!
           expect(event.tickets_available).to eq 85
         end
       end
@@ -46,7 +46,7 @@ RSpec.describe Event, type: :model do
         let!(:ticket) { create_list(:ticket, 125, payment: payment) }
         let!(:payment) { create(:payment, event: event) }
 
-        it { expect { event.update_available_tickets }.to raise_error(StandardError, 'can not buy more tickets than available') }
+        it { expect { event.update_available_tickets! }.to raise_error(StandardError, 'can not buy more tickets than available') }
       end
     end
   end

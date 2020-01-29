@@ -15,7 +15,7 @@ RSpec.describe Api::EventsController, type: :controller do
       it { expect(response_data['id']).to eq(event.id) }
       it { expect(response_data['name']).to eq(event.name) }
       it { expect(response_data['location']).to eq(event.location) }
-      it { expect(DateTime.parse(response_data['happens_at'])).to eq(event.happens_at) }
+      it { expect(response_data['happens_at']).to eq(event.happens_at.as_json) }
       it { expect(response_data['ticket_price']).to eq(event.ticket_price) }
       it { expect(response.status).to eq(200) }
     end

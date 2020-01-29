@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Payment < ApplicationRecord
-  validates :paid_amount, :currency, presence: true
+  validates :paid_amount, :currency, :tickets_ordered_amount, presence: true
   validates :paid_amount, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
 
   validate :payment_datetime, on: :create
@@ -18,7 +18,7 @@ class Payment < ApplicationRecord
   private
 
   def payment_datetime
-    if DateTime.now > self.event.happens_at
+    if Time.current > self.event.happens_at
       errors.add(:base, 'can not buy a ticket after the event')
     end
   end
