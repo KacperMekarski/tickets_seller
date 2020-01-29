@@ -6,7 +6,7 @@ require 'json'
 RSpec.describe Api::PaymentsController, type: :controller do
   describe 'POST #create' do
     subject(:post_create) { post :create, params: { payment: payment_params, event_id: event.id }, format: :json }
-    let!(:event) { create(:event, ticket_price: 10, tickets_available: tickets_available, tickets_amount: tickets_amount) }
+    let!(:event) { create(:event, ticket_price: 10, tickets_available: tickets_available, tickets_amount: tickets_amount, happens_at: happens_at) }
     let!(:user) { create(:user) }
     let(:response_data) { JSON.parse(response.body)['payment'] }
 
@@ -42,6 +42,7 @@ RSpec.describe Api::PaymentsController, type: :controller do
       }
       let(:tickets_available) { 1000 }
       let(:tickets_amount) { 1000 }
+      let(:happens_at) { 1.week.from_now }
 
       it 'contains valid response data' do
         post_create
@@ -79,12 +80,11 @@ RSpec.describe Api::PaymentsController, type: :controller do
       }
       let(:tickets_available) { 1000 }
       let(:tickets_amount) { 1000 }
+      let(:happens_at) { 1.week.from_now }
 
       context 'because change is left' do
         let(:paid_amount) { 12345 }
         let(:tickets_ordered_amount) { 1234 }
-        let(:tickets_available) { 1000 }
-        let(:tickets_amount) { 1000 }
 
         it_should_behave_like "payment response renderable"
 
@@ -98,8 +98,6 @@ RSpec.describe Api::PaymentsController, type: :controller do
       context 'because not enough money was paid' do
         let(:paid_amount) { 7 }
         let(:tickets_ordered_amount) { 1 }
-        let(:tickets_available) { 1000 }
-        let(:tickets_amount) { 1000 }
 
         it_should_behave_like "payment response renderable"
 
@@ -114,7 +112,6 @@ RSpec.describe Api::PaymentsController, type: :controller do
         let(:paid_amount) { 100 }
         let(:tickets_ordered_amount) { 10 }
         let(:tickets_available) { 0 }
-        let(:tickets_amount) { 100 }
 
         it_should_behave_like "payment response renderable"
 
@@ -129,7 +126,6 @@ RSpec.describe Api::PaymentsController, type: :controller do
         let(:paid_amount) { 100 }
         let(:tickets_ordered_amount) { 10 }
         let(:tickets_available) { 5 }
-        let(:tickets_amount) { 100 }
 
         it_should_behave_like "payment response renderable"
 
@@ -137,6 +133,20 @@ RSpec.describe Api::PaymentsController, type: :controller do
           post_create
           expect(reject_reason).to eq "Something went wrong with your transaction."
           expect(response_data["errors"].values.flatten).to include('not enough tickets left')
+        end
+      end
+
+      context 'because event is over' do
+        let(:paid_amount) { 100 }
+        let(:tickets_ordered_amount) { 2 }
+        let(:happens_at) { 1.week.ago }
+
+        it_should_behave_like "payment response renderable"
+
+        it 'should give errors' do
+          post_create
+          expect(reject_reason).to eq "Something went wrong with your transaction."
+          expect(response_data["errors"].values.flatten).to include('can not buy a ticket after the event')
         end
       end
     end
