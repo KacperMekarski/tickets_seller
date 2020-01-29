@@ -1,24 +1,37 @@
-# README
+## Description of tickets_seller
+It's tickets selling platform.
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Code style
 
-Things you may want to cover:
+Rubocop
 
-* Ruby version
+## Built with:
 
-* System dependencies
+- [Ruby 2.6.4](https://www.ruby-lang.org/en/)
+- [Ruby on Rails 6.0.2.1](https://rubyonrails.org/)
 
-* Configuration
+## Installing
 
-* Database creation
+```sh
+git clone https://github.com/K4cpersky/tickets_seller.git
 
-* Database initialization
+cd tickets_seller
 
-* How to run the test suite
+bundle install
 
-* Services (job queues, cache servers, search engines, etc.)
+rails db:setup
 
-* Deployment instructions
+bundle exec rspec spec
+```
 
-* ...
+## Usage
+
+Visit my attachment I sent separately.
+
+## Author
+
+* **Kacper Mekarski** - *Initial work* - [Kacper Mekarski](https://github.com/K4cpersky)
+
+## License
+
+MIT © [Kacper Mękarski]()
