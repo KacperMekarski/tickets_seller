@@ -10,14 +10,14 @@ RSpec.describe Api::PaymentsController, type: :controller do
     let!(:user) { create(:user) }
     let(:response_data) { JSON.parse(response.body)['payment'] }
 
-    shared_examples "payment response renderable" do
+    shared_examples 'payment response renderable' do
       it 'contains valid response data' do
         post_create
         expect(response_data['event_id']).to eq(payment_params[:event_id])
         expect(response_data['user_id']).to eq(payment_params[:user_id])
         expect(response_data['paid_amount']).to eq(payment_params[:paid_amount])
         expect(response_data['currency']).to eq(payment_params[:currency])
-        expect(response.content_type).to eq "application/json; charset=utf-8"
+        expect(response.content_type).to eq 'application/json; charset=utf-8'
       end
 
       it 'should have unprocessable entity status' do
@@ -32,14 +32,15 @@ RSpec.describe Api::PaymentsController, type: :controller do
     end
 
     context 'when payment is created' do
-      let(:payment_params) { {
-        user_id: user.id,
-        event_id: event.id,
-        paid_amount: 40,
-        tickets_ordered_amount: 4,
-        currency: "EUR"
+      let(:payment_params) do
+        {
+          user_id: user.id,
+          event_id: event.id,
+          paid_amount: 40,
+          tickets_ordered_amount: 4,
+          currency: 'EUR'
         }
-      }
+      end
       let(:tickets_available) { 1000 }
       let(:tickets_amount) { 1000 }
       let(:happens_at) { 1.week.from_now }
@@ -50,15 +51,15 @@ RSpec.describe Api::PaymentsController, type: :controller do
         expect(response_data['user_id']).to eq(payment_params[:user_id])
         expect(response_data['paid_amount']).to eq(payment_params[:paid_amount])
         expect(response_data['currency']).to eq(payment_params[:currency])
-        expect(response_data["tickets"].count).to eq 4
-        expect(response.content_type).to eq "application/json; charset=utf-8"
+        expect(response_data['tickets'].count).to eq 4
+        expect(response.content_type).to eq 'application/json; charset=utf-8'
       end
 
-      it "should increase number of purchased tickets by 4" do
+      it 'should increase number of purchased tickets by 4' do
         expect { post_create }.to change { event.reload.purchased_tickets.count }.by(4)
       end
 
-      it "should decrease number of available tickets by 4" do
+      it 'should decrease number of available tickets by 4' do
         expect { post_create }.to change { event.reload.tickets_available }.by(-4)
       end
 
@@ -70,28 +71,29 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
     context 'when payment is rejected' do
       let(:reject_reason) { JSON.parse(response.body)['reject_reason'] }
-      let(:payment_params) { {
-        user_id: user.id,
-        event_id: event.id,
-        paid_amount: paid_amount,
-        tickets_ordered_amount: tickets_ordered_amount,
-        currency: "EUR"
+      let(:payment_params) do
+        {
+          user_id: user.id,
+          event_id: event.id,
+          paid_amount: paid_amount,
+          tickets_ordered_amount: tickets_ordered_amount,
+          currency: 'EUR'
         }
-      }
+      end
       let(:tickets_available) { 1000 }
       let(:tickets_amount) { 1000 }
       let(:happens_at) { 1.week.from_now }
 
       context 'because change is left' do
-        let(:paid_amount) { 12345 }
+        let(:paid_amount) { 12_345 }
         let(:tickets_ordered_amount) { 1234 }
 
-        it_should_behave_like "payment response renderable"
+        it_should_behave_like 'payment response renderable'
 
         it 'should give errors' do
           post_create
-          expect(reject_reason).to eq "Something went wrong with your transaction."
-          expect(response_data["errors"].values.flatten).to include('change is left')
+          expect(reject_reason).to eq 'Something went wrong with your transaction.'
+          expect(response_data['errors'].values.flatten).to include('change is left')
         end
       end
 
@@ -99,12 +101,12 @@ RSpec.describe Api::PaymentsController, type: :controller do
         let(:paid_amount) { 7 }
         let(:tickets_ordered_amount) { 1 }
 
-        it_should_behave_like "payment response renderable"
+        it_should_behave_like 'payment response renderable'
 
         it 'should give errors' do
           post_create
-          expect(reject_reason).to eq "Your card has been declined."
-          expect(response_data["errors"].values.flatten).to include('not enough money to buy a ticket')
+          expect(reject_reason).to eq 'Your card has been declined.'
+          expect(response_data['errors'].values.flatten).to include('not enough money to buy a ticket')
         end
       end
 
@@ -113,12 +115,12 @@ RSpec.describe Api::PaymentsController, type: :controller do
         let(:tickets_ordered_amount) { 10 }
         let(:tickets_available) { 0 }
 
-        it_should_behave_like "payment response renderable"
+        it_should_behave_like 'payment response renderable'
 
         it 'should give errors' do
           post_create
-          expect(reject_reason).to eq "Something went wrong with your transaction."
-          expect(response_data["errors"].values.flatten).to include('lack of any tickets')
+          expect(reject_reason).to eq 'Something went wrong with your transaction.'
+          expect(response_data['errors'].values.flatten).to include('lack of any tickets')
         end
       end
 
@@ -127,12 +129,12 @@ RSpec.describe Api::PaymentsController, type: :controller do
         let(:tickets_ordered_amount) { 10 }
         let(:tickets_available) { 5 }
 
-        it_should_behave_like "payment response renderable"
+        it_should_behave_like 'payment response renderable'
 
         it 'should give errors' do
           post_create
-          expect(reject_reason).to eq "Something went wrong with your transaction."
-          expect(response_data["errors"].values.flatten).to include('not enough tickets left')
+          expect(reject_reason).to eq 'Something went wrong with your transaction.'
+          expect(response_data['errors'].values.flatten).to include('not enough tickets left')
         end
       end
 
@@ -141,12 +143,12 @@ RSpec.describe Api::PaymentsController, type: :controller do
         let(:tickets_ordered_amount) { 2 }
         let(:happens_at) { 1.week.ago }
 
-        it_should_behave_like "payment response renderable"
+        it_should_behave_like 'payment response renderable'
 
         it 'should give errors' do
           post_create
-          expect(reject_reason).to eq "Something went wrong with your transaction."
-          expect(response_data["errors"].values.flatten).to include('can not buy a ticket after the event')
+          expect(reject_reason).to eq 'Something went wrong with your transaction.'
+          expect(response_data['errors'].values.flatten).to include('can not buy a ticket after the event')
         end
       end
     end
@@ -164,7 +166,7 @@ RSpec.describe Api::PaymentsController, type: :controller do
           event_id: event.id,
           paid_amount: event.ticket_price,
           tickets_ordered_amount: 4,
-          currency: "EUR"
+          currency: 'EUR'
         }
       }
       should permit(:user_id, :event_id, :paid_amount, :tickets_ordered_amount, :currency)

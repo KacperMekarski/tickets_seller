@@ -34,11 +34,11 @@ class Api::PaymentsController < ApplicationController
     payment.valid?
     # rescue  => e
     if payment.valid?
-      return :ok
+      :ok
     elsif payment.errors.messages.values.flatten.include?('not enough money to buy a ticket')
-      return :card_error
+      :card_error
     else
-      return :payment_error
+      :payment_error
     end
   end
 
@@ -74,6 +74,8 @@ class Api::PaymentsController < ApplicationController
 
   def check_if_enough_tickets_left(tickets_number, event_id)
     tickets_available = Event.find(event_id).tickets_available
-    raise StandardError, 'not enough tickets left' if tickets_number > tickets_available
+    if tickets_number > tickets_available
+      raise StandardError, 'not enough tickets left'
+    end
   end
 end

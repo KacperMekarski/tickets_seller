@@ -18,17 +18,21 @@ class Payment < ApplicationRecord
   private
 
   def payment_datetime
-    if Time.current > self.event.happens_at
+    if Time.current > event.happens_at
       errors.add(:base, 'can not buy a ticket after the event')
     end
   end
 
   def change_is_left
-    errors.add(:base, 'change is left') unless paid_amount % event.ticket_price == 0
+    unless paid_amount % event.ticket_price == 0
+      errors.add(:base, 'change is left')
+    end
   end
 
   def not_enough_money
-    errors.add(:base, 'not enough money to buy a ticket') if paid_amount < event.ticket_price
+    if paid_amount < event.ticket_price
+      errors.add(:base, 'not enough money to buy a ticket')
+    end
   end
 
   def lack_of_tickets
@@ -36,6 +40,8 @@ class Payment < ApplicationRecord
   end
 
   def not_enough_tickets
-    errors.add(:base, 'not enough tickets left') if paid_amount / event.ticket_price > event.tickets_available && paid_amount % event.ticket_price == 0
+    if paid_amount / event.ticket_price > event.tickets_available && paid_amount % event.ticket_price == 0
+      errors.add(:base, 'not enough tickets left')
+    end
   end
 end
