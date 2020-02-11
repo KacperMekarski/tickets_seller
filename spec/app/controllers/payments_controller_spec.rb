@@ -20,12 +20,12 @@ RSpec.describe Api::PaymentsController, type: :controller do
         expect(response.content_type).to eq 'application/json; charset=utf-8'
       end
 
-      it 'should have unprocessable entity status' do
+      it 'has unprocessable entity status' do
         post_create
         expect(response.status).to eq(422)
       end
 
-      it 'should not change amount of tickets' do
+      it 'does not change amount of tickets' do
         expect { post_create }.not_to change { event.reload.purchased_tickets.count }
         expect { post_create }.not_to change { event.reload.tickets_available }
       end
@@ -55,15 +55,15 @@ RSpec.describe Api::PaymentsController, type: :controller do
         expect(response.content_type).to eq 'application/json; charset=utf-8'
       end
 
-      it 'should increase number of purchased tickets by 4' do
+      it 'increases number of purchased tickets by 4' do
         expect { post_create }.to change { event.reload.purchased_tickets.count }.by(4)
       end
 
-      it 'should decrease number of available tickets by 4' do
+      it 'decreases number of available tickets by 4' do
         expect { post_create }.to change { event.reload.tickets_available }.by(-4)
       end
 
-      it 'should have ok status' do
+      it 'has ok status' do
         post_create
         expect(response.status).to eq(200)
       end
@@ -90,7 +90,7 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
         it_should_behave_like 'payment response renderable'
 
-        it 'should give errors' do
+        it 'gives errors' do
           post_create
           expect(reject_reason).to eq 'Something went wrong with your transaction.'
           expect(response_data['errors'].values.flatten).to include('change is left')
@@ -103,7 +103,7 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
         it_should_behave_like 'payment response renderable'
 
-        it 'should give errors' do
+        it 'gives errors' do
           post_create
           expect(reject_reason).to eq 'Your card has been declined.'
           expect(response_data['errors'].values.flatten).to include('not enough money to buy a ticket')
@@ -117,7 +117,7 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
         it_should_behave_like 'payment response renderable'
 
-        it 'should give errors' do
+        it 'gives errors' do
           post_create
           expect(reject_reason).to eq 'Something went wrong with your transaction.'
           expect(response_data['errors'].values.flatten).to include('lack of any tickets')
@@ -131,7 +131,7 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
         it_should_behave_like 'payment response renderable'
 
-        it 'should give errors' do
+        it 'gives errors' do
           post_create
           expect(reject_reason).to eq 'Something went wrong with your transaction.'
           expect(response_data['errors'].values.flatten).to include('not enough tickets left')
@@ -145,7 +145,7 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
         it_should_behave_like 'payment response renderable'
 
-        it 'should give errors' do
+        it 'gives errors' do
           post_create
           expect(reject_reason).to eq 'Something went wrong with your transaction.'
           expect(response_data['errors'].values.flatten).to include('can not buy a ticket after the event')
