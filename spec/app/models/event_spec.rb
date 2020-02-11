@@ -11,9 +11,22 @@ RSpec.describe Event, type: :model do
     it { is_expected.to validate_presence_of(:happens_at) }
     it { is_expected.to validate_presence_of(:ticket_price) }
     it { is_expected.to validate_presence_of(:tickets_amount) }
-    it { should validate_numericality_of(:ticket_price).only_integer.is_greater_than_or_equal_to(1) }
-    it { should validate_numericality_of(:tickets_available).only_integer.is_greater_than_or_equal_to(0).on(:update) }
-    it { should validate_numericality_of(:tickets_amount).only_integer.is_greater_than_or_equal_to(1) }
+    it {
+      should validate_numericality_of(:ticket_price)
+        .only_integer
+        .is_greater_than_or_equal_to(1)
+    }
+    it {
+      should validate_numericality_of(:tickets_available)
+      .only_integer
+      .is_greater_than_or_equal_to(0)
+      .on(:update)
+    }
+    it {
+      should validate_numericality_of(:tickets_amount)
+        .only_integer
+        .is_greater_than_or_equal_to(1)
+    }
   end
 
   describe 'relations' do
@@ -46,7 +59,10 @@ RSpec.describe Event, type: :model do
         let!(:ticket) { create_list(:ticket, 125, payment: payment) }
         let!(:payment) { create(:payment, event: event) }
 
-        it { expect { event.update_available_tickets! }.to raise_error(StandardError, 'can not buy more tickets than available') }
+        it {
+          expect { event.update_available_tickets! }
+            .to raise_error(StandardError, 'can not buy more tickets than available') 
+        }
       end
     end
   end

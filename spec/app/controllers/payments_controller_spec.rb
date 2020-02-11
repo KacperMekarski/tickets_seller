@@ -101,7 +101,8 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
         it 'gives errors' do
           expect(reject_reason).to eq 'Something went wrong with your transaction.'
-          expect(response_data['errors'].values.flatten).to include('change is left')
+          expect(response_data['errors'].values.flatten)
+            .to include('change is left')
         end
       end
 
@@ -113,7 +114,8 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
         it 'gives errors' do
           expect(reject_reason).to eq 'Your card has been declined.'
-          expect(response_data['errors'].values.flatten).to include('not enough money to buy a ticket')
+          expect(response_data['errors'].values.flatten)
+            .to include('not enough money to buy a ticket')
         end
       end
 
@@ -126,7 +128,8 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
         it 'gives errors' do
           expect(reject_reason).to eq 'Something went wrong with your transaction.'
-          expect(response_data['errors'].values.flatten).to include('lack of any tickets')
+          expect(response_data['errors'].values.flatten)
+            .to include('lack of any tickets')
         end
       end
 
@@ -139,7 +142,8 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
         it 'gives errors' do
           expect(reject_reason).to eq 'Something went wrong with your transaction.'
-          expect(response_data['errors'].values.flatten).to include('not enough tickets left')
+          expect(response_data['errors'].values.flatten)
+            .to include('not enough tickets left')
         end
       end
 
@@ -152,7 +156,8 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
         it 'gives errors' do
           expect(reject_reason).to eq 'Something went wrong with your transaction.'
-          expect(response_data['errors'].values.flatten).to include('can not buy a ticket after the event')
+          expect(response_data['errors'].values.flatten)
+            .to include('can not buy a ticket after the event')
         end
       end
     end
@@ -180,7 +185,13 @@ RSpec.describe Api::PaymentsController, type: :controller do
   end
 
   describe 'rescue_from' do
-    it { should rescue_from(Api::Adapters::Payment::Gateway::CardError).with(:render_record_invalid) }
-    it { should rescue_from(Api::Adapters::Payment::Gateway::PaymentError).with(:render_record_invalid) }
+    it {
+      should rescue_from(Api::Adapters::Payment::Gateway::CardError)
+        .with(:render_record_invalid)
+    }
+    it {
+      should rescue_from(Api::Adapters::Payment::Gateway::PaymentError)
+        .with(:render_record_invalid)
+    }
   end
 end
