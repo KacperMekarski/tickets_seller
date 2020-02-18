@@ -25,9 +25,9 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
     shared_examples 'payment response renderable' do
       it 'contains valid response data' do
-        expect(response_data['event_id']).to eq(payment_params[:event_id])
-        expect(response_data['user_id']).to eq(payment_params[:user_id])
-        expect(response_data['paid_amount']).to eq(payment_params[:paid_amount])
+        expect(response_data['event_id'].to_i).to eq(payment_params[:event_id])
+        expect(response_data['user_id'].to_i).to eq(payment_params[:user_id])
+        expect(response_data['paid_amount'].to_i).to eq(payment_params[:paid_amount])
         expect(response_data['currency']).to eq(payment_params[:currency])
         expect(response.content_type).to eq 'application/json; charset=utf-8'
       end
@@ -89,13 +89,13 @@ RSpec.describe Api::PaymentsController, type: :controller do
           currency: 'EUR'
         }
       end
-      let(:tickets_available) { 1000 }
       let(:tickets_amount) { 1000 }
-      let(:happens_at) { 1.week.from_now }
 
       context 'because change is left' do
+        let(:tickets_available) { 1000 }
         let(:paid_amount) { 12_345 }
         let(:tickets_ordered_amount) { 1234 }
+        let(:happens_at) { 1.week.from_now }
 
         it_should_behave_like 'payment response renderable'
 
@@ -107,8 +107,10 @@ RSpec.describe Api::PaymentsController, type: :controller do
       end
 
       context 'because not enough money was paid' do
+        let(:tickets_available) { 1000 }
         let(:paid_amount) { 7 }
         let(:tickets_ordered_amount) { 1 }
+        let(:happens_at) { 1.week.from_now }
 
         it_should_behave_like 'payment response renderable'
 
@@ -123,6 +125,7 @@ RSpec.describe Api::PaymentsController, type: :controller do
         let(:paid_amount) { 100 }
         let(:tickets_ordered_amount) { 10 }
         let(:tickets_available) { 0 }
+        let(:happens_at) { 1.week.from_now }
 
         it_should_behave_like 'payment response renderable'
 
@@ -137,11 +140,15 @@ RSpec.describe Api::PaymentsController, type: :controller do
         let(:paid_amount) { 100 }
         let(:tickets_ordered_amount) { 10 }
         let(:tickets_available) { 5 }
+        let(:happens_at) { 1.week.from_now }
 
         it_should_behave_like 'payment response renderable'
 
-        it 'gives errors' do
+        it 'gives general error' do
           expect(reject_reason).to eq 'Something went wrong with your transaction.'
+        end
+
+        it 'gives error details' do
           expect(response_data['errors'].values.flatten)
             .to include('not enough tickets left')
         end
@@ -151,6 +158,7 @@ RSpec.describe Api::PaymentsController, type: :controller do
         let(:paid_amount) { 100 }
         let(:tickets_ordered_amount) { 2 }
         let(:happens_at) { 1.week.ago }
+        let(:tickets_available) { 1000 }
 
         it_should_behave_like 'payment response renderable'
 
