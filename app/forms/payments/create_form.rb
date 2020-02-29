@@ -34,13 +34,9 @@ class Payments::CreateForm
                     user_id: self.user_id,
                     tickets_ordered_amount: self.tickets_ordered_amount
                    )
-
-    create_tickets(self, @new_payment.id)
   end
 
   private
-
-  # Token
 
   def check_if_valid
     if self.valid?
@@ -51,23 +47,6 @@ class Payments::CreateForm
       :payment_error
     end
   end
-
-  # Create tickets TO MA BYC POZNIES SERWIS
-
-  def create_tickets(payment, payment_id)
-    tickets_number = payment.tickets_ordered_amount.to_i
-    ticket_payment_id = { payment_id: payment_id }
-    tickets = get_all_together(tickets_number, ticket_payment_id)
-    tickets.each { |t| Ticket.create!(t) }
-  end
-
-  def get_all_together(tickets_number, ticket_payment_id)
-    tickets = []
-    tickets_number.times { tickets << ticket_payment_id }
-    tickets
-  end
-
-  # VALIDATIONS
 
   def payment_datetime
     if Time.current > Event.find(event_id.to_i).happens_at

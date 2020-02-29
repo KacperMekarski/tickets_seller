@@ -14,7 +14,6 @@ class Event < ApplicationRecord
     if new_available_tickets_amount < 0
       raise StandardError, 'can not buy more tickets than available'
     end
-
     update_columns(tickets_available: new_available_tickets_amount)
   end
 end
