@@ -22,10 +22,11 @@ RSpec.describe Payment::Process do
         user_id: user.id,
         event_id: event.id,
         paid_amount: 40,
-        tickets_ordered_amount: 4,
+        tickets_ordered_amount: tickets_ordered_amount,
         currency: 'EUR'
       }
     end
+    let(:tickets_ordered_amount) { 4 }
     let(:tickets_available) { 1000 }
     let(:tickets_amount) { 1000 }
     let(:happens_at) { 1.week.from_now }
@@ -39,9 +40,29 @@ RSpec.describe Payment::Process do
       call
     end
 
-    it 'submits that form' do
+    it 'submits payment form' do
       expect_any_instance_of(Payments::CreateForm)
         .to receive(:submit)
+        .and_call_original
+
+      call
+    end
+
+    it 'create tickets' do
+      # TODO: How should I know what will be id of payment? It's 3 but should be assigned to sth.
+      expect(Ticket::Create)
+        .to receive(:call)
+        .with(tickets_ordered_amount: tickets_ordered_amount, payment_id: 3)
+        .and_call_original
+
+      call
+    end
+
+    it 'updates event amount of available tickets' do
+      # TODO: How should I know what will be id of payment? It's 4 but should be assigned to sth.
+      expect(Event::UpdateAvailableTickets)
+        .to receive(:call)
+        .with(4)
         .and_call_original
 
       call

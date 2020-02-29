@@ -36,8 +36,6 @@ class Payments::CreateForm
                    )
 
     create_tickets(self, @new_payment.id)
-
-    update_event_tickets_available
   end
 
   private
@@ -52,12 +50,6 @@ class Payments::CreateForm
     else
       :payment_error
     end
-  end
-
-  # Update event TO MA BYC POZNIEJ SERWIS
-
-  def update_event_tickets_available
-    @new_payment.event.update_available_tickets!
   end
 
   # Create tickets TO MA BYC POZNIES SERWIS

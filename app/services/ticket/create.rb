@@ -1,7 +1,5 @@
 class Ticket::Create
-  def initialize
-  end
-
-  def call
+  def self.call(tickets_ordered_amount:, payment_id:)
+    
   end
 end

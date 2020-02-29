@@ -3,33 +3,45 @@
 require 'rails_helper'
 
 RSpec.describe Payments::CreateForm, type: :model do
-  describe 'validations' do
-    subject(:payment_create_form) {
-      Payments::CreateForm.new(
-        paid_amount: paid_amount,
-        tickets_ordered_amount: tickets_ordered_amount,
-        currency: "EUR",
-        user_id: user.id,
-        event_id: event.id)
+  subject(:payment_create_form) {
+    Payments::CreateForm.new(
+      paid_amount: 10,
+      tickets_ordered_amount: 1,
+      currency: "EUR",
+      user_id: user.id,
+      event_id: event.id)
+  }
+
+  let(:user) { create(:user) }
+  let!(:event) do
+    create(
+      :event,
+      ticket_price: 10,
+      tickets_available: 1000,
+      tickets_amount: 1000,
+    )
+  end
+
+  context 'when created' do
+    it { expect { payment_create_form.submit }.to change { Ticket.count }.by(1) }
+  end
+
+  describe 'attributes' do
+    let(:event) { create(:event) }
+    let(:paid_amount) { event.ticket_price }
+    let(:tickets_ordered_amount) { 1 }
+
+    it { is_expected.to validate_presence_of(:currency) }
+    it { is_expected.to validate_presence_of(:paid_amount) }
+    it { is_expected.to validate_presence_of(:tickets_ordered_amount) }
+    it {
+      should validate_numericality_of(:paid_amount)
+        .only_integer
+        .is_greater_than_or_equal_to(1)
     }
+  end
 
-    let(:user) { create(:user) }
-
-    describe 'attributes' do
-      let(:event) { create(:event) }
-      let(:paid_amount) { event.ticket_price }
-      let(:tickets_ordered_amount) { 1 }
-
-      it { is_expected.to validate_presence_of(:currency) }
-      it { is_expected.to validate_presence_of(:paid_amount) }
-      it { is_expected.to validate_presence_of(:tickets_ordered_amount) }
-      it {
-        should validate_numericality_of(:paid_amount)
-          .only_integer
-          .is_greater_than_or_equal_to(1)
-      }
-    end
-
+  describe 'validations' do
     describe 'payment_datetime' do
       let(:event) { create(:event, happens_at: happens_at) }
       let(:paid_amount) { event.ticket_price }
