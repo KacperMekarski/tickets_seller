@@ -6,10 +6,10 @@ require 'json'
 RSpec.describe Api::PaymentsController, type: :controller do
   describe 'POST #create' do
     before do
-      post :create, params: { payment: payment_params, event_id: event.id }, format: :json
+      post :create, params: { payment: payment_params, event_id: event.id }, as: :json
     end
     subject(:post_create) do
-      post :create, params: { payment: payment_params, event_id: event.id }, format: :json
+      post :create, params: { payment: payment_params, event_id: event.id }, as: :json
     end
     let!(:event) do
       create(
@@ -43,6 +43,7 @@ RSpec.describe Api::PaymentsController, type: :controller do
     end
 
     context 'when payment is created' do
+      # TODO: params should be switched with payment_params
       let(:payment_params) do
         {
           user_id: user.id,
@@ -52,6 +53,7 @@ RSpec.describe Api::PaymentsController, type: :controller do
           currency: 'EUR'
         }
       end
+      let(:params) { ActionController::Parameters.new(payment_params) }
       let(:tickets_available) { 1000 }
       let(:tickets_amount) { 1000 }
       let(:happens_at) { 1.week.from_now }
@@ -75,6 +77,15 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
       it 'has 200 ok status' do
         expect(response.status).to eq(200)
+      end
+
+      it 'runs payment process' do
+        params.permit!
+        expect(Payment::Process)
+          .to receive(:call).with(params)
+                            .and_call_original
+
+        post_create
       end
     end
 

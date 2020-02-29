@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Api::PaymentsController < ApplicationController
+  require 'json'
   # rescue_from ActiveRecord::RecordInvalid
   rescue_from Api::Adapters::Payment::Gateway::CardError, with: :render_record_invalid
   rescue_from Api::Adapters::Payment::Gateway::PaymentError, with: :render_record_invalid
@@ -18,10 +19,9 @@ class Api::PaymentsController < ApplicationController
   }
 
   def create
-    @payment = Payments::CreateForm.new(payment_params)
-    @payment.submit
+    @payment = Payment::Process.call(payment_params)
 
-    render json: { payment: @payment.new_payment.as_json(json_payment) }
+    render json: { payment: @payment.as_json(json_payment) }
   end
 
   private
