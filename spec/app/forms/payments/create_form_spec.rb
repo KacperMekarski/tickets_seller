@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe Payments::CreateForm, type: :model do
   subject(:payment_create_form) {
     Payments::CreateForm.new(
-      paid_amount: 10,
-      tickets_ordered_amount: 1,
+      paid_amount: paid_amount,
+      tickets_ordered_amount: tickets_ordered_amount,
       currency: "EUR",
       user_id: user.id,
       event_id: event.id)
@@ -20,10 +20,6 @@ RSpec.describe Payments::CreateForm, type: :model do
       tickets_available: 1000,
       tickets_amount: 1000,
     )
-  end
-
-  context 'when created' do
-    it { expect { payment_create_form.submit }.to change { Ticket.count }.by(1) }
   end
 
   describe 'attributes' do
