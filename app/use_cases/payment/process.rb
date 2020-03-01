@@ -9,5 +9,6 @@ class Payment::Process
     Event::UpdateAvailableTickets.call(
       @payment.new_payment.id
     )
+    @payment
   end
 end

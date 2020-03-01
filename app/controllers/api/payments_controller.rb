@@ -21,7 +21,7 @@ class Api::PaymentsController < ApplicationController
   def create
     @payment = Payment::Process.call(payment_params)
 
-    render json: { payment: @payment.as_json(json_payment) }
+    render json: { payment: @payment.new_payment.as_json(json_payment) }
   end
 
   private
@@ -31,6 +31,8 @@ class Api::PaymentsController < ApplicationController
   end
 
   def render_record_invalid(reject_reason)
-    render json: { payment: @payment.as_json, reject_reason: reject_reason.message }, status: 422
+    @failed_payment = Payments::CreateForm.new(payment_params)
+    @failed_payment.valid?
+    render json: { payment: @failed_payment.as_json, reject_reason: reject_reason.message }, status: 422
   end
 end

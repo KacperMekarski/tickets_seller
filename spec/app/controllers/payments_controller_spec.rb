@@ -21,7 +21,9 @@ RSpec.describe Api::PaymentsController, type: :controller do
       )
     end
     let!(:user) { create(:user) }
-    let(:response_data) { JSON.parse(response.body)['payment'] }
+    let(:response_data) do
+      JSON.parse(response.body)['payment']
+    end
 
     shared_examples 'payment response renderable' do
       it 'contains valid response data' do
