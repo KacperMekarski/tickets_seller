@@ -3,11 +3,11 @@
 require 'rails_helper'
 require 'json'
 
-RSpec.describe Ticket::Create do
+RSpec.describe Ticket::Generate do
   describe '.call' do
     subject(:call) { described_class.call(
       tickets_ordered_amount: tickets_ordered_amount,
-      payment_id: payment.id
+      payment_id: payment_id
       )
     }
 
@@ -15,9 +15,15 @@ RSpec.describe Ticket::Create do
 
     let(:tickets_ordered_amount) { 2 }
     let(:payment_id) { payment.id }
+    let(:ticket_attributes) {
+      [
+        { payment_id: payment_id },
+        { payment_id: payment_id }
+      ]
+    }
 
-    it 'calls payment create form' do
-      expect(Ticket::PrepareTicketsAttributes)
+    it 'calls prepare attributes' do
+      expect(Ticket::Data::PrepareAttributes)
         .to receive(:call)
         .with(
           tickets_number: tickets_ordered_amount,
@@ -28,14 +34,13 @@ RSpec.describe Ticket::Create do
       call
     end
 
-    context 'when there are ordered tickets' do
-      it { expect { subject }.to change { Ticket.count }.by(2) }
-    end
+    it 'calls create tickets' do
+      expect(Ticket::Data::Create)
+        .to receive(:call)
+        .with(ticket_attributes)
+        .and_call_original
 
-    context 'when there are not any ordered tickets' do
-      let(:tickets_ordered_amount) { 0 }
-
-      it { expect { subject }.to change { Ticket.count }.by(0) }
+      call
     end
   end
 end

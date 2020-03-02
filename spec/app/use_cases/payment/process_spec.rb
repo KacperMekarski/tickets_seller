@@ -17,6 +17,7 @@ RSpec.describe Payment::Process do
       )
     end
     let!(:user) { create(:user) }
+
     let(:payment_params) do
       {
         user_id: user.id,
@@ -30,6 +31,8 @@ RSpec.describe Payment::Process do
     let(:tickets_available) { 1000 }
     let(:tickets_amount) { 1000 }
     let(:happens_at) { 1.week.from_now }
+
+    let(:return_data) {  }
 
     it 'calls payment create form' do
       expect(Payments::CreateForm)
@@ -50,7 +53,7 @@ RSpec.describe Payment::Process do
 
     it 'create tickets' do
       # TODO: How should I know what will be id of payment? It's 3 but should be assigned to sth.
-      expect(Ticket::Create)
+      expect(Ticket::Generate)
         .to receive(:call)
         .with(tickets_ordered_amount: tickets_ordered_amount, payment_id: 3)
         .and_call_original
@@ -66,6 +69,11 @@ RSpec.describe Payment::Process do
         .and_call_original
 
       call
+    end
+
+    it 'returns payment data' do
+      call
+      expect(call.currency).to eq "EUR"
     end
   end
 end
