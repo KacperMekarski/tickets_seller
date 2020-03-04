@@ -5,21 +5,22 @@ require 'json'
 
 RSpec.describe Ticket::Data::Create do
   describe '.call' do
-    subject(:call) { described_class.call(
-      ticket_attributes
+    subject(:call) do
+      described_class.call(
+        ticket_attributes
       )
-    }
+    end
 
     let!(:payment) { create(:payment) }
 
     context 'when data is valid' do
       context 'when ticket params are passed' do
-        let(:ticket_attributes) {
+        let(:ticket_attributes) do
           [
             { payment_id: payment.id },
-            { payment_id: payment.id },
+            { payment_id: payment.id }
           ]
-        }
+        end
 
         it 'saves tickets to database' do
           expect { subject }.to change { Ticket.count }.by(2)
@@ -37,12 +38,12 @@ RSpec.describe Ticket::Data::Create do
       end
 
       context 'when payment is not found' do
-        let(:ticket_attributes) {
+        let(:ticket_attributes) do
           [
-            { payment_id: 12345 },
-            { payment_id: 12345 },
+            { payment_id: 12_345 },
+            { payment_id: 12_345 }
           ]
-        }
+        end
 
         it { expect { subject }.to raise_error(ActiveRecord::RecordInvalid) }
       end

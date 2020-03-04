@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Payments::CreateForm
   include ActiveModel::Model
 
@@ -23,25 +25,25 @@ class Payments::CreateForm
     Api::Adapters::Payment::Gateway.check_for_errors(token: check_if_valid)
 
     payment = Api::Adapters::Payment::Gateway.charge(
-                amount: self.paid_amount,
-                currency: self.currency
-              )
+      amount: paid_amount,
+      currency: currency
+    )
 
     @new_payment = Payment.create!(
-                    paid_amount: payment.amount,
-                    currency: payment.currency,
-                    event_id: self.event_id,
-                    user_id: self.user_id,
-                    tickets_ordered_amount: self.tickets_ordered_amount
-                   )
+      paid_amount: payment.amount,
+      currency: payment.currency,
+      event_id: event_id,
+      user_id: user_id,
+      tickets_ordered_amount: tickets_ordered_amount
+    )
   end
 
   private
 
   def check_if_valid
-    if self.valid?
+    if valid?
       :ok
-    elsif self.errors.messages.values.flatten.include?('not enough money to buy a ticket')
+    elsif errors.messages.values.flatten.include?('not enough money to buy a ticket')
       :card_error
     else
       :payment_error
@@ -73,7 +75,7 @@ class Payments::CreateForm
   end
 
   def not_enough_tickets
-    tickets_number = self.tickets_ordered_amount.to_i
+    tickets_number = tickets_ordered_amount.to_i
     event_id = self.event_id.to_i
     tickets_available = Event.find(event_id).tickets_available
     if tickets_number > tickets_available

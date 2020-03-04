@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Ticket::Generate
   def self.call(tickets_ordered_amount:, payment_id:)
     @tickets = Ticket::Data::PrepareAttributes.call(

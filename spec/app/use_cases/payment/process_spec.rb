@@ -31,12 +31,20 @@ RSpec.describe Payment::Process do
     let(:tickets_available) { 1000 }
     let(:tickets_amount) { 1000 }
     let(:happens_at) { 1.week.from_now }
+    let(:payment) do
+      build(:payment,
+            user_id: payment_params[:user_id],
+            event_id: payment_params[:event_id],
+            paid_amount: payment_params[:paid_amount],
+            tickets_ordered_amount: payment_params[:tickets_ordered_amount],
+            currency: payment_params[:currency])
+    end
 
     it 'calls payment create form' do
       expect(Payments::CreateForm)
         .to receive(:new)
         .with(payment_params)
-        .and_return(payment_instance)
+        .and_return(payment)
         .and_call_original
 
       call

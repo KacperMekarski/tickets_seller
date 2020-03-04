@@ -3,14 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe Payments::CreateForm, type: :model do
-  subject(:payment_create_form) {
+  subject(:payment_create_form) do
     Payments::CreateForm.new(
       paid_amount: paid_amount,
       tickets_ordered_amount: tickets_ordered_amount,
-      currency: "EUR",
+      currency: 'EUR',
       user_id: user.id,
-      event_id: event.id)
-  }
+      event_id: event.id
+    )
+  end
 
   let(:user) { create(:user) }
   let!(:event) do
@@ -18,7 +19,7 @@ RSpec.describe Payments::CreateForm, type: :model do
       :event,
       ticket_price: 10,
       tickets_available: 1000,
-      tickets_amount: 1000,
+      tickets_amount: 1000
     )
   end
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Ticket::Data::PrepareAttributes
   def self.call(tickets_number:, ticket_payment_id:)
     tickets = []

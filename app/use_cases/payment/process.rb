@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Payment::Process
   def self.call(payment_params)
     @payment = Payments::CreateForm.new(payment_params)

@@ -11,7 +11,7 @@ RSpec.describe Event::UpdateAvailableTickets do
       create(
         :event,
         tickets_available: 100,
-        tickets_amount: 100,
+        tickets_amount: 100
       )
     end
 

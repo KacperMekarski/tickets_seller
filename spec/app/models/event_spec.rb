@@ -18,9 +18,9 @@ RSpec.describe Event, type: :model do
     }
     it {
       should validate_numericality_of(:tickets_available)
-      .only_integer
-      .is_greater_than_or_equal_to(0)
-      .on(:update)
+        .only_integer
+        .is_greater_than_or_equal_to(0)
+        .on(:update)
     }
     it {
       should validate_numericality_of(:tickets_amount)
@@ -61,7 +61,7 @@ RSpec.describe Event, type: :model do
 
         it {
           expect { event.update_available_tickets! }
-            .to raise_error(StandardError, 'can not buy more tickets than available') 
+            .to raise_error(StandardError, 'can not buy more tickets than available')
         }
       end
     end
