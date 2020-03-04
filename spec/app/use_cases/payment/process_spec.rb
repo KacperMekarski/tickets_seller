@@ -32,12 +32,11 @@ RSpec.describe Payment::Process do
     let(:tickets_amount) { 1000 }
     let(:happens_at) { 1.week.from_now }
 
-    let(:return_data) {  }
-
     it 'calls payment create form' do
       expect(Payments::CreateForm)
         .to receive(:new)
         .with(payment_params)
+        .and_return(payment_instance)
         .and_call_original
 
       call
@@ -73,7 +72,12 @@ RSpec.describe Payment::Process do
 
     it 'returns payment data' do
       call
-      expect(call.currency).to eq "EUR"
+      expect(call.new_payment.paid_amount).to eq payment_params[:paid_amount]
+      expect(call.new_payment.user_id).to eq user.id
+      expect(call.new_payment.event_id).to eq event.id
+      expect(call.new_payment.currency).to eq payment_params[:currency]
+      expect(call.new_payment.tickets_ordered_amount)
+        .to eq payment_params[:tickets_ordered_amount]
     end
   end
 end

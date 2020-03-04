@@ -29,6 +29,7 @@ RSpec.describe Ticket::Generate do
           tickets_number: tickets_ordered_amount,
           ticket_payment_id: payment_id
         )
+        .and_return(ticket_attributes)
         .and_call_original
 
       call
