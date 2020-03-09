@@ -23,6 +23,38 @@ RSpec.describe Payments::CreateForm, type: :model do
     )
   end
 
+  describe '#submit' do
+    let(:paid_amount) { event.ticket_price }
+    let(:tickets_ordered_amount) { 1 }
+
+    it 'calls payment adapter to check for errors' do
+      expect(Api::Adapters::Payment::Gateway)
+        .to receive(:check_for_errors)
+        .with(token: :ok)
+        .and_call_original
+
+      subject.submit
+    end
+
+    it 'calls payment adapter to charge' do
+      expect(Api::Adapters::Payment::Gateway)
+        .to receive(:charge)
+        .with(amount: paid_amount, currency: subject.currency)
+        .and_call_original
+
+      subject.submit
+    end
+
+    it 'calls payment repository to create payment' do
+      expect(Payment::Repository)
+        .to receive(:create)
+        .with(subject)
+        .and_call_original
+
+      subject.submit
+    end
+  end
+
   describe 'attributes' do
     let(:event) { create(:event) }
     let(:paid_amount) { event.ticket_price }
@@ -49,7 +81,8 @@ RSpec.describe Payments::CreateForm, type: :model do
 
         it 'should validate that purchase is before event' do
           subject.valid?
-          expect(subject.errors[:base]).not_to include('can not buy a ticket after the event')
+          expect(subject.errors[:base])
+            .not_to include('can not buy a ticket after the event')
         end
       end
 
@@ -58,7 +91,8 @@ RSpec.describe Payments::CreateForm, type: :model do
 
         it 'should validate that purchase is after the event' do
           subject.valid?
-          expect(subject.errors[:base]).to include('can not buy a ticket after the event')
+          expect(subject.errors[:base])
+            .to include('can not buy a ticket after the event')
         end
       end
     end
@@ -95,7 +129,8 @@ RSpec.describe Payments::CreateForm, type: :model do
 
         it 'should validate there is enough money to buy a ticket' do
           subject.valid?
-          expect(subject.errors[:base]).not_to include('not enough money to buy a ticket')
+          expect(subject.errors[:base])
+            .not_to include('not enough money to buy a ticket')
         end
       end
 
@@ -104,7 +139,8 @@ RSpec.describe Payments::CreateForm, type: :model do
 
         it 'should validate there is not enough money to buy a ticket' do
           subject.valid?
-          expect(subject.errors[:base]).to include('not enough money to buy a ticket')
+          expect(subject.errors[:base])
+            .to include('not enough money to buy a ticket')
         end
       end
     end

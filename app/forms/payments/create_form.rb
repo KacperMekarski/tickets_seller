@@ -13,7 +13,10 @@ class Payments::CreateForm
   )
 
   validates :paid_amount, :currency, :tickets_ordered_amount, presence: true
-  validates :paid_amount, numericality: { only_integer: true, greater_than_or_equal_to: 1 }
+  validates :paid_amount, numericality: {
+                                          only_integer: true,
+                                          greater_than_or_equal_to: 1
+                                        }
 
   validate :payment_datetime
   validate :change_is_left
@@ -24,18 +27,12 @@ class Payments::CreateForm
   def submit
     Api::Adapters::Payment::Gateway.check_for_errors(token: check_if_valid)
 
-    payment = Api::Adapters::Payment::Gateway.charge(
+    Api::Adapters::Payment::Gateway.charge(
       amount: paid_amount,
       currency: currency
     )
 
-    @new_payment = Payment.create!(
-      paid_amount: payment.amount,
-      currency: payment.currency,
-      event_id: event_id,
-      user_id: user_id,
-      tickets_ordered_amount: tickets_ordered_amount
-    )
+    @new_payment = Payment::Repository.create(self)
   end
 
   private
