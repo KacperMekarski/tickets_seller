@@ -1,5 +1,7 @@
 class Payment::Repository
   def self.create(attributes)
+    raise ArgumentError.new "Lack of attributes" unless attributes
+
     Payment.create!(
       paid_amount: attributes.paid_amount,
       currency: attributes.currency,

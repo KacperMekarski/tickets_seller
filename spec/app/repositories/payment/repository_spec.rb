@@ -1,40 +1,43 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'json'
 
 RSpec.describe Payment::Repository do
-  describe '.create' do
-    subject(:create) do
-      described_class.create(attributes)
+  subject(:create_payment_repository) do
+    described_class.create( attributes )
+  end
+
+  let!(:user) { create(:user) }
+  let!(:event) { create(:event) }
+
+  context 'when data is valid' do
+    let(:attributes) { build(:payment, event: event, user: user) }
+
+    it 'saves tickets to database' do
+      expect { subject }.to change { Payment.count }.by(1)
     end
 
-    let(:attributes) {
-      # Źle podajesz instance variable do create jako attributes
-      # Payments::CreateForm.new(
-      #                           paid_amount: event.ticket_price,
-      #                           user_id: user.id,
-      #                           event_id: event.id,
-      #                           currency: 'EUR',
-      #                           tickets_ordered_amount: 1,
-      #                         )
-    }
-    # let!(:event) { create(:event) }
+    it 'calls create payment' do
+      expect(Payment)
+        .to receive(:create!)
+        .with(
+          paid_amount: attributes.paid_amount,
+          currency: attributes.currency,
+          event_id: attributes.event_id,
+          user_id: attributes.user_id,
+          tickets_ordered_amount: attributes.tickets_ordered_amount
+        )
+        .and_call_original
 
-    context 'when data is valid' do
-      let(:user) { create(:user) }
-
-      it 'saves tickets to database' do
-        expect { subject }.to change { Payment.count }.by(1)
-      end
+      create_payment_repository
     end
+  end
 
-    context 'when data is invalid' do
-      let(:user) { nil }
+  context 'when data is invalid' do
+    context 'when argument is missing' do
+      let(:attributes) { nil }
 
-      it 'does not save any ticket to database' do
-        expect { subject }.to change { Payment.count }.by(0)
-      end
+      it { expect { subject }.to raise_error(ArgumentError) }
     end
   end
 end
