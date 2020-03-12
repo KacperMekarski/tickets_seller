@@ -39,5 +39,17 @@ RSpec.describe Payment::Repository do
 
       it { expect { subject }.to raise_error(ArgumentError) }
     end
+
+    context 'when event is not found' do
+      let(:attributes) { build(:payment, event_id: 12, user: user) }
+
+      it { expect { subject }.to raise_error(ActiveRecord::RecordInvalid) }
+    end
+
+    context 'when user is not found' do
+      let(:attributes) { build(:payment, event: event, user_id: 12) }
+
+      it { expect { subject }.to raise_error(ActiveRecord::RecordInvalid) }
+    end
   end
 end
