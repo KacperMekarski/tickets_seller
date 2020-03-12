@@ -6,6 +6,6 @@ class Ticket::Generate
       tickets_number: tickets_ordered_amount.to_i,
       ticket_payment_id: payment_id
     )
-    Ticket::Data::Create.call(@tickets)
+    Ticket::Repository.create(@tickets)
   end
 end

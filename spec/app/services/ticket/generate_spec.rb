@@ -37,8 +37,8 @@ RSpec.describe Ticket::Generate do
     end
 
     it 'calls create tickets' do
-      expect(Ticket::Data::Create)
-        .to receive(:call)
+      expect(Ticket::Repository)
+        .to receive(:create)
         .with(ticket_attributes)
         .and_call_original
 
