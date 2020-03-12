@@ -25,9 +25,9 @@ class Payments::CreateForm
   validate :not_enough_tickets
 
   def submit
-    Api::Adapters::Payment::Gateway.check_for_errors(token: check_if_valid)
+    Payment::GatewayAdapter.check_for_errors(token: check_if_valid)
 
-    Api::Adapters::Payment::Gateway.charge(
+    Payment::GatewayAdapter.charge(
       amount: paid_amount,
       currency: currency
     )
