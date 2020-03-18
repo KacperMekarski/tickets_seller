@@ -28,7 +28,7 @@ RSpec.describe Payments::CreateForm, type: :model do
     let(:tickets_ordered_amount) { 1 }
 
     it 'calls payment adapter to check for errors' do
-      expect(Payment::GatewayAdapter)
+      expect(PaymentAdapter::GatewayAdapter)
         .to receive(:check_for_errors)
         .with(token: :ok)
         .and_call_original
@@ -37,7 +37,7 @@ RSpec.describe Payments::CreateForm, type: :model do
     end
 
     it 'calls payment adapter to charge' do
-      expect(Payment::GatewayAdapter)
+      expect(PaymentAdapter::GatewayAdapter)
         .to receive(:charge)
         .with(amount: paid_amount, currency: subject.currency)
         .and_call_original

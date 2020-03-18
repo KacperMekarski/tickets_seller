@@ -3,8 +3,8 @@
 class Api::PaymentsController < ApplicationController
   require 'json'
   # rescue_from ActiveRecord::RecordInvalid
-  rescue_from Payment::GatewayAdapter::CardError, with: :render_record_invalid
-  rescue_from Payment::GatewayAdapter::PaymentError, with: :render_record_invalid
+  rescue_from PaymentAdapter::GatewayAdapter::CardError, with: :render_record_invalid
+  rescue_from PaymentAdapter::GatewayAdapter::PaymentError, with: :render_record_invalid
   # rescue_from StandardError, with: :render_record_invalid
   class_attribute :json_payment
 
