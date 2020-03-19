@@ -25,14 +25,16 @@ class Payments::CreateForm
   validate :not_enough_tickets
 
   def submit
-    PaymentAdapter::GatewayAdapter.check_for_errors(token: check_if_valid)
+    ActiveRecord::Base.transaction do
+      PaymentAdapter::GatewayAdapter.check_for_errors(token: check_if_valid)
 
-    PaymentAdapter::GatewayAdapter.charge(
-      amount: paid_amount,
-      currency: currency
-    )
+      @new_payment = Payment::Repository.create(self)
 
-    @new_payment = Payment::Repository.create(self)
+      PaymentAdapter::GatewayAdapter.charge(
+        amount: paid_amount,
+        currency: currency
+      )
+    end
   end
 
   private
