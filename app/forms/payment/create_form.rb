@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Payments::CreateForm
+class Payment::CreateForm
   include ActiveModel::Model
 
   attr_accessor(
@@ -26,11 +26,11 @@ class Payments::CreateForm
 
   def submit
     ActiveRecord::Base.transaction do
-      PaymentAdapter::GatewayAdapter.check_for_errors(token: check_if_valid)
+      Payment::GatewayAdapter.check_for_errors(token: check_if_valid)
 
       @new_payment = Payment::Repository.create(self)
 
-      PaymentAdapter::GatewayAdapter.charge(
+      Payment::GatewayAdapter.charge(
         amount: paid_amount,
         currency: currency
       )

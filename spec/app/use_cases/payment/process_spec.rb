@@ -41,7 +41,7 @@ RSpec.describe Payment::Process do
     end
 
     it 'calls payment create form' do
-      expect(Payments::CreateForm)
+      expect(Payment::CreateForm)
         .to receive(:new)
         .with(payment_params)
         .and_return(payment)
@@ -51,7 +51,7 @@ RSpec.describe Payment::Process do
     end
 
     it 'submits payment form' do
-      expect_any_instance_of(Payments::CreateForm)
+      expect_any_instance_of(Payment::CreateForm)
         .to receive(:submit)
         .and_call_original
 

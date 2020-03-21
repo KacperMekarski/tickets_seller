@@ -207,11 +207,11 @@ RSpec.describe Api::PaymentsController, type: :controller do
 
   describe 'rescue_from' do
     it {
-      should rescue_from(PaymentAdapter::GatewayAdapter::CardError)
+      should rescue_from(Payment::GatewayAdapter::CardError)
         .with(:render_record_invalid)
     }
     it {
-      should rescue_from(PaymentAdapter::GatewayAdapter::PaymentError)
+      should rescue_from(Payment::GatewayAdapter::PaymentError)
         .with(:render_record_invalid)
     }
   end

@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 
-RSpec.describe Payments::CreateForm, type: :model do
+RSpec.describe Payment::CreateForm, type: :model do
   subject(:payment_create_form) do
-    Payments::CreateForm.new(
+    Payment::CreateForm.new(
       paid_amount: paid_amount,
       tickets_ordered_amount: tickets_ordered_amount,
       currency: 'EUR',
@@ -30,7 +30,7 @@ RSpec.describe Payments::CreateForm, type: :model do
       let(:paid_amount) { event.ticket_price }
 
       it 'calls payment adapter to check for errors' do
-        expect(PaymentAdapter::GatewayAdapter)
+        expect(Payment::GatewayAdapter)
           .to receive(:check_for_errors)
           .with(token: :ok)
           .and_call_original
@@ -39,7 +39,7 @@ RSpec.describe Payments::CreateForm, type: :model do
       end
 
       it 'calls payment adapter to charge' do
-        expect(PaymentAdapter::GatewayAdapter)
+        expect(Payment::GatewayAdapter)
           .to receive(:charge)
           .with(amount: paid_amount, currency: subject.currency)
           .and_call_original
@@ -61,7 +61,7 @@ RSpec.describe Payments::CreateForm, type: :model do
       let(:paid_amount) { nil }
 
       it 'rolls back transaction' do
-        expect { subject.submit }.to raise_exception PaymentAdapter::GatewayAdapter::CardError
+        expect { subject.submit }.to raise_exception Payment::GatewayAdapter::CardError
       end
     end
   end

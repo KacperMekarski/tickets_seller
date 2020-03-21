@@ -2,7 +2,7 @@
 
 class Payment::Process
   def self.call(payment_params)
-    @payment = Payments::CreateForm.new(payment_params)
+    @payment = Payment::CreateForm.new(payment_params)
     @payment.submit
     Ticket::Generate.call(
       tickets_ordered_amount: @payment.tickets_ordered_amount,
