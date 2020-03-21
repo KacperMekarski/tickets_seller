@@ -22,34 +22,22 @@ class Api::EventsController < ApplicationController
   }
 
   def show_basic_info
-    render json: { model_name => @event.as_json(json_basic_info) }
+    render json: { event: @event.as_json(json_basic_info) }
   end
 
   def show_available_tickets
-    render json: { model_name => @event.as_json(json_available_tickets) }
+    render json: { event: @event.as_json(json_available_tickets) }
   end
 
   def index
-    @events = model_class.all
-    render json: { model_name_plural => @events.as_json(json_events) }
+    @events = Event.all
+    render json: { events: @events.as_json(json_events) }
   end
 
   private
 
   def find_event
-    @event = model_class.find(params[:id])
-  end
-
-  def model_name
-    controller_name.singularize
-  end
-
-  def model_name_plural
-    controller_name
-  end
-
-  def model_class
-    model_name.classify.constantize
+    @event = Event.find(params[:id])
   end
 
   def render_event_not_found(error)
