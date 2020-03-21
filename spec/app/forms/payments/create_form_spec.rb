@@ -24,34 +24,45 @@ RSpec.describe Payments::CreateForm, type: :model do
   end
 
   describe '#submit' do
-    let(:paid_amount) { event.ticket_price }
     let(:tickets_ordered_amount) { 1 }
 
-    it 'calls payment adapter to check for errors' do
-      expect(PaymentAdapter::GatewayAdapter)
-        .to receive(:check_for_errors)
-        .with(token: :ok)
-        .and_call_original
+    context 'when data is valid' do
+      let(:paid_amount) { event.ticket_price }
 
-      subject.submit
+      it 'calls payment adapter to check for errors' do
+        expect(PaymentAdapter::GatewayAdapter)
+          .to receive(:check_for_errors)
+          .with(token: :ok)
+          .and_call_original
+
+        subject.submit
+      end
+
+      it 'calls payment adapter to charge' do
+        expect(PaymentAdapter::GatewayAdapter)
+          .to receive(:charge)
+          .with(amount: paid_amount, currency: subject.currency)
+          .and_call_original
+
+        subject.submit
+      end
+
+      it 'calls payment repository to create payment' do
+        expect(Payment::Repository)
+          .to receive(:create)
+          .with(subject)
+          .and_call_original
+
+        subject.submit
+      end
     end
 
-    it 'calls payment adapter to charge' do
-      expect(PaymentAdapter::GatewayAdapter)
-        .to receive(:charge)
-        .with(amount: paid_amount, currency: subject.currency)
-        .and_call_original
+    context 'when data is invalid' do
+      let(:paid_amount) { nil }
 
-      subject.submit
-    end
-
-    it 'calls payment repository to create payment' do
-      expect(Payment::Repository)
-        .to receive(:create)
-        .with(subject)
-        .and_call_original
-
-      subject.submit
+      it 'rolls back transaction' do
+        expect { subject.submit }.to raise_exception PaymentAdapter::GatewayAdapter::CardError
+      end
     end
   end
 
