@@ -5,11 +5,13 @@ require 'rails_helper'
 RSpec.describe Payment::CreateForm, type: :model do
   subject(:payment_create_form) do
     Payment::CreateForm.new(
-      paid_amount: paid_amount,
-      tickets_ordered_amount: tickets_ordered_amount,
-      currency: 'EUR',
-      user_id: user.id,
-      event_id: event.id
+      payment = {
+        paid_amount: paid_amount,
+        tickets_ordered_amount: tickets_ordered_amount,
+        currency: 'EUR',
+        user_id: user.id,
+        event_id: event.id
+      }
     )
   end
 
@@ -92,7 +94,7 @@ RSpec.describe Payment::CreateForm, type: :model do
 
         it 'should validate that purchase is before event' do
           subject.valid?
-          expect(subject.errors[:base])
+          expect(subject.errors[:base].flatten)
             .not_to include('can not buy a ticket after the event')
         end
       end
@@ -102,7 +104,7 @@ RSpec.describe Payment::CreateForm, type: :model do
 
         it 'should validate that purchase is after the event' do
           subject.valid?
-          expect(subject.errors[:base])
+          expect(subject.errors[:base].flatten)
             .to include('can not buy a ticket after the event')
         end
       end
@@ -117,7 +119,7 @@ RSpec.describe Payment::CreateForm, type: :model do
 
         it 'should validate there is no change' do
           subject.valid?
-          expect(subject.errors[:base]).not_to include('change is left')
+          expect(subject.errors[:base].flatten).not_to include('change is left')
         end
       end
 
@@ -126,7 +128,7 @@ RSpec.describe Payment::CreateForm, type: :model do
 
         it 'should validate that change is left' do
           subject.valid?
-          expect(subject.errors[:base]).to include('change is left')
+          expect(subject.errors[:base].flatten).to include('change is left')
         end
       end
     end
@@ -140,7 +142,7 @@ RSpec.describe Payment::CreateForm, type: :model do
 
         it 'should validate there is enough money to buy a ticket' do
           subject.valid?
-          expect(subject.errors[:base])
+          expect(subject.errors[:base].flatten)
             .not_to include('not enough money to buy a ticket')
         end
       end
@@ -150,7 +152,7 @@ RSpec.describe Payment::CreateForm, type: :model do
 
         it 'should validate there is not enough money to buy a ticket' do
           subject.valid?
-          expect(subject.errors[:base])
+          expect(subject.errors[:base].flatten)
             .to include('not enough money to buy a ticket')
         end
       end
@@ -166,7 +168,7 @@ RSpec.describe Payment::CreateForm, type: :model do
 
         it 'should validate there are tickets available' do
           subject.valid?
-          expect(subject.errors[:base]).not_to include('lack of any tickets')
+          expect(subject.errors[:base].flatten).not_to include('lack of any tickets')
         end
       end
 
@@ -175,7 +177,7 @@ RSpec.describe Payment::CreateForm, type: :model do
 
         it 'should validate there is lack of tickets' do
           subject.valid?
-          expect(subject.errors[:base]).to include('lack of any tickets')
+          expect(subject.errors[:base].flatten).to include('lack of any tickets')
         end
       end
     end
@@ -190,7 +192,7 @@ RSpec.describe Payment::CreateForm, type: :model do
 
         it 'should validate there is more tickets than user wants to buy' do
           subject.valid?
-          expect(subject.errors[:base]).not_to include('not enough tickets left')
+          expect(subject.errors[:base].flatten).not_to include('not enough tickets left')
         end
       end
 
@@ -199,7 +201,7 @@ RSpec.describe Payment::CreateForm, type: :model do
 
         it 'should validate there is less tickets than user wants to buy' do
           subject.valid?
-          expect(subject.errors[:base]).to include('not enough tickets left')
+          expect(subject.errors[:base].flatten).to include('not enough tickets left')
         end
       end
     end
